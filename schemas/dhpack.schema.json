@@ -1,0 +1,226 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/gwillish/DaggerheartModels/main/schemas/dhpack.schema.json",
+  "title": "DHPack",
+  "description": "A .dhpack content pack for the Encounter app. Accepts either a pack wrapper object (recommended) or a bare adversary array (seansbox/daggerheart-srd export format).",
+  "oneOf": [
+    { "$ref": "#/$defs/PackWrapper" },
+    {
+      "type": "array",
+      "items": { "$ref": "#/$defs/Adversary" },
+      "description": "Bare adversary array — seansbox/daggerheart-srd direct export format."
+    }
+  ],
+  "$defs": {
+    "PackWrapper": {
+      "type": "object",
+      "description": "Recommended top-level structure. Supports adversaries, environments, or both.",
+      "properties": {
+        "$schema": {
+          "type": "string",
+          "description": "Optional $schema reference for editor validation."
+        },
+        "adversaries": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/Adversary" },
+          "description": "Array of adversary objects to import."
+        },
+        "environments": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/Environment" },
+          "description": "Array of environment objects to import."
+        }
+      },
+      "additionalProperties": false
+    },
+    "Adversary": {
+      "type": "object",
+      "description": "A Daggerheart adversary definition.",
+      "required": [
+        "name",
+        "tier",
+        "type",
+        "description",
+        "difficulty",
+        "hp",
+        "stress",
+        "atk",
+        "attack",
+        "range",
+        "damage"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9-]*$",
+          "description": "URL-safe slug, e.g. 'iron-golem'. Auto-derived from name if absent."
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Display name."
+        },
+        "source": {
+          "type": "string",
+          "description": "Pack name, author, or 'homebrew'. Stored lowercase."
+        },
+        "tier": {
+          "$ref": "#/$defs/IntOrNumericString",
+          "description": "PC level tier 1–4 this adversary is designed for."
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "Bruiser",
+            "Horde",
+            "Leader",
+            "Minion",
+            "Ranged",
+            "Skulk",
+            "Social",
+            "Solo",
+            "Standard",
+            "Support"
+          ],
+          "description": "Adversary role. Horde variant strings like 'Horde (3/HP)' are normalized to 'Horde' on import."
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "description": "One-line appearance or demeanor."
+        },
+        "motives_and_tactics": {
+          "type": "string",
+          "description": "GM-facing guidance on how to run this adversary."
+        },
+        "difficulty": {
+          "$ref": "#/$defs/IntOrNumericString",
+          "description": "DC for all player rolls against this adversary."
+        },
+        "thresholds": {
+          "type": "string",
+          "pattern": "^(None|\\d+/\\d+|\\d+/None|None/\\d+)$",
+          "description": "Combined major/severe threshold string, e.g. '8/15'. Use 'None' for minions with no damage thresholds. Provide either this field or threshold_major + threshold_severe."
+        },
+        "threshold_major": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Pre-split alternative to thresholds. Damage required for a Major hit."
+        },
+        "threshold_severe": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Pre-split alternative to thresholds. Damage required for a Severe hit."
+        },
+        "hp": {
+          "$ref": "#/$defs/IntOrNumericString",
+          "description": "Hit points."
+        },
+        "stress": {
+          "$ref": "#/$defs/IntOrNumericString",
+          "description": "Stress capacity."
+        },
+        "atk": {
+          "type": "string",
+          "pattern": "^[+-]\\d+$",
+          "description": "Attack modifier string, e.g. '+3' or '-1'."
+        },
+        "attack": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Name of the standard attack or weapon."
+        },
+        "range": {
+          "type": "string",
+          "enum": ["Melee", "Very Close", "Close", "Far", "Very Far"],
+          "description": "Attack range."
+        },
+        "damage": {
+          "type": "string",
+          "pattern": "^\\d+d\\d+(\\+\\d+)?\\s+(phy|mag)$",
+          "description": "Damage expression, e.g. '1d12+2 phy' or '2d6 mag'."
+        },
+        "experience": {
+          "type": "string",
+          "description": "Optional experience tag, e.g. 'Tremor Sense +2'."
+        },
+        "feature": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/Feature" },
+          "description": "Actions, reactions, and passives."
+        }
+      },
+      "oneOf": [
+        {
+          "required": ["thresholds"],
+          "description": "Combined threshold string variant."
+        },
+        {
+          "required": ["threshold_major", "threshold_severe"],
+          "description": "Pre-split threshold keys variant."
+        }
+      ],
+      "additionalProperties": false
+    },
+    "Environment": {
+      "type": "object",
+      "description": "A Daggerheart environment — a scene element with features but no HP or Stress.",
+      "required": ["name", "description"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9-]*$",
+          "description": "URL-safe slug. Auto-derived from name if absent."
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source": {
+          "type": "string",
+          "description": "Pack name or author. Stored lowercase."
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        },
+        "feature": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/Feature" },
+          "description": "Passives, reactions, and actions this environment contributes to the scene."
+        }
+      },
+      "additionalProperties": false
+    },
+    "Feature": {
+      "type": "object",
+      "description": "A named action, reaction, or passive on an adversary or environment.",
+      "required": ["name", "text"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Unique name within this adversary or environment. May include a ' - Type' suffix (e.g. 'Bite - Action') to allow feat_type to be inferred."
+        },
+        "text": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Rules text."
+        },
+        "feat_type": {
+          "type": "string",
+          "enum": ["action", "reaction", "passive"],
+          "description": "Feature category. If absent, inferred from a ' - Action' or ' - Reaction' suffix in name; defaults to 'passive'."
+        }
+      },
+      "additionalProperties": false
+    },
+    "IntOrNumericString": {
+      "description": "Accepts either a JSON integer or a string containing an integer, for compatibility with SRD tooling that serializes all numeric fields as strings.",
+      "oneOf": [
+        { "type": "integer" },
+        { "type": "string", "pattern": "^\\d+$" }
+      ]
+    }
+  }
+}
