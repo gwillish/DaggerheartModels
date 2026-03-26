@@ -1,0 +1,59 @@
+{
+  "adversaries": [
+    {
+      "id": "test-goblin",
+      "name": "Test Goblin",
+      "source": "homebrew-sample",
+      "tier": 1,
+      "type": "Minion",
+      "description": "A small green creature used for testing.",
+      "motives_and_tactics": "Swarms in numbers; flees when outnumbered.",
+      "difficulty": 10,
+      "thresholds": "6/12",
+      "hp": 5,
+      "stress": 2,
+      "atk": "+1",
+      "attack": "Rusty Dagger",
+      "range": "Very Close",
+      "damage": "1d6 phy",
+      "feats": [
+        {
+          "name": "Pack Courage",
+          "text": "While 2+ allies are within Very Close range, this creature is immune to fear.",
+          "feat_type": "passive"
+        }
+      ]
+    },
+    {
+      "id": "test-troll",
+      "name": "Test Troll",
+      "source": "homebrew-sample",
+      "tier": 2,
+      "type": "Bruiser",
+      "description": "A hulking regenerating beast used for testing.",
+      "difficulty": 14,
+      "thresholds": "12/20",
+      "hp": 30,
+      "stress": 4,
+      "atk": "+4",
+      "attack": "Club",
+      "range": "Close",
+      "damage": "2d10+3 phy"
+    }
+  ],
+  "environments": [
+    {
+      "id": "test-dungeon",
+      "name": "Test Dungeon",
+      "source": "homebrew-sample",
+      "description": "A damp stone chamber used for testing.",
+      "feats": [
+        {
+          "name": "Collapsing Ceiling",
+          "text": "At the start of each round, the GM may deal 1d4 phy damage to one target.",
+          "feat_type": "action"
+        }
+      ]
+    }
+  ]
+}

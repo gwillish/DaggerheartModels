@@ -1,0 +1,39 @@
+name: Linux
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build-and-test:
+    name: Swift ${{ matrix.swift }} on Linux
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        swift: ["6.1", "6.2"]
+    container: swift:${{ matrix.swift }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build DaggerheartModels
+        run: swift build --target DaggerheartModels
+
+      - name: Build validate-dhpack
+        run: swift build --target validate-dhpack
+
+      - name: Test DaggerheartModels
+        run: swift test --filter DaggerheartModelsTests
+
+  swift-format:
+    name: swift-format lint
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    container: swift:6.2
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Lint
+        run: git ls-files -z '*.swift' | xargs -0 swift-format lint --strict --parallel
