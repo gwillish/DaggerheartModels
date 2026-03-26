@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/gwillish/DaggerheartModels/main/schemas/dhpack.schema.json",
+  "$id": "https://cdn.jsdelivr.net/gh/gwillish/DaggerheartModels@main/schemas/dhpack.schema.json",
   "title": "DHPack",
   "description": "A .dhpack content pack for the Encounter app. Accepts either a pack wrapper object (recommended) or a bare adversary array (seansbox/daggerheart-srd export format).",
   "oneOf": [

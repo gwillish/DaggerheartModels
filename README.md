@@ -65,7 +65,22 @@ Community and homebrew content is distributed as `.dhpack` files — plain JSON
 containing adversaries, environments, or both.
 
 The JSON Schema for `.dhpack` is at [`schemas/dhpack.schema.json`](schemas/dhpack.schema.json).
-Add `"$schema"` to your pack file to enable validation and autocomplete in VS Code.
+Add `"$schema"` to your pack file to enable validation and autocomplete in VS Code:
+
+```json
+{
+  "$schema": "https://cdn.jsdelivr.net/gh/gwillish/DaggerheartModels@main/schemas/dhpack.schema.json",
+  "adversaries": [ ... ]
+}
+```
+
+Pin to a release tag for stability (e.g. `@0.1.0` instead of `@main`).
+
+Use `validate-dhpack` to check a pack file against the decoder:
+
+```bash
+swift run validate-dhpack my-pack.dhpack
+```
 
 A complete field reference is in [`docs/dhpack-format.md`](docs/dhpack-format.md).
 
