@@ -20,12 +20,6 @@ struct ValidateDHPack: ParsableCommand {
   @Argument(help: "One or more .dhpack files to validate.")
   var files: [String]
 
-  mutating func validate() throws {
-    if files.isEmpty {
-      throw ValidationError("Please provide at least one .dhpack file to validate.")
-    }
-  }
-
   mutating func run() throws {
     var failed = false
 
