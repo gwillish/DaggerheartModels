@@ -17,14 +17,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Build DaggerheartModels
-        run: swift build --target DaggerheartModels
+      - name: Build DHModels
+        run: swift build --target DHModels
 
       - name: Build validate-dhpack
         run: swift build --target validate-dhpack
 
-      - name: Test DaggerheartModels
-        run: swift test --filter DaggerheartModelsTests
+      - name: Test DHModels
+        run: swift test --filter DHModelsTests
 
   swift-format:
     name: swift-format lint
