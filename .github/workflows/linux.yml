@@ -35,5 +35,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Mark workspace as safe for git
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
       - name: Lint
-        run: swift-format lint --strict --parallel --recursive Sources Tests
+        run: git ls-files -z '*.swift' | xargs -0 swift-format lint --strict --parallel
