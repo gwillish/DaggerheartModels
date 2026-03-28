@@ -13,7 +13,7 @@
 //  See docs/data-schema.md for the complete field reference.
 //
 
-import DaggerheartModels
+import DHModels
 import Foundation
 import Logging
 import Observation

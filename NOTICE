@@ -1,0 +1,42 @@
+DHModels
+Copyright (c) 2026 Joe Heck
+
+---
+
+## Package Source Code
+
+The DHModels package source code is licensed under the MIT License.
+See the LICENSE file in this repository for the full text.
+
+---
+
+## Bundled SRD Content
+
+The DHKit target bundles adversary and environment data derived from the
+Daggerheart System Reference Document 1.0. That content is used under the
+terms of the Darrington Press Community Gaming License (DPCGL).
+
+Required attribution (DPCGL §4):
+
+  This product includes materials from the Daggerheart System Reference
+  Document 1.0, © Critical Role, LLC. under the terms of the Darrington
+  Press Community Gaming (DPCGL) License. More information can be found
+  at https://www.daggerheart.com. There are no previous modifications
+  by others.
+
+The bundled SRD data originates from the seansbox/daggerheart-srd
+repository (https://github.com/seansbox/daggerheart-srd), which exports
+the SRD content as structured JSON. The data has not been modified beyond
+format normalization for decoding compatibility.
+
+Full DPCGL license text: https://darringtonpress.com/license/
+
+---
+
+## Disclaimer
+
+This package is not affiliated with, endorsed by, or sponsored by
+Darrington Press, LLC or Critical Role, LLC.
+
+Daggerheart is a trademark of Critical Role, LLC and is used here in
+accordance with the Darrington Press Community Gaming License.

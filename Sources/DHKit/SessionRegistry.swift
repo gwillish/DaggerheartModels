@@ -10,7 +10,7 @@
 //  Cross-launch persistence is a future enhancement.
 //
 
-import DaggerheartModels
+import DHModels
 import Foundation
 import Observation
 

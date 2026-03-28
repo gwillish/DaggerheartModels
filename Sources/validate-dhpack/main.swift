@@ -1,5 +1,5 @@
 import ArgumentParser
-import DaggerheartModels
+import DHModels
 import Foundation
 
 // validate-dhpack — validates one or more .dhpack files against the DaggerheartModels schema.

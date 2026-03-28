@@ -8,44 +8,44 @@ let sharedSettings: [SwiftSetting] = [
 ]
 
 var products: [Product] = [
-  .library(name: "DaggerheartModels", targets: ["DaggerheartModels"]),
+  .library(name: "DHModels", targets: ["DHModels"]),
   .executable(name: "validate-dhpack", targets: ["validate-dhpack"]),
 ]
 
 var targets: [Target] = [
   // Pure Codable value types — no Apple-only imports, compiles on Linux.
   .target(
-    name: "DaggerheartModels",
+    name: "DHModels",
     swiftSettings: sharedSettings
   ),
 
-  // CLI tool for validating .dhpack files — depends only on DaggerheartModels.
+  // CLI tool for validating .dhpack files — depends only on DHModels.
   .executableTarget(
     name: "validate-dhpack",
     dependencies: [
-      "DaggerheartModels",
+      "DHModels",
       .product(name: "ArgumentParser", package: "swift-argument-parser"),
     ],
     swiftSettings: sharedSettings
   ),
 
-  // Tests for DaggerheartModels — run on Linux in CI.
+  // Tests for DHModels — run on Linux in CI.
   .testTarget(
-    name: "DaggerheartModelsTests",
-    dependencies: ["DaggerheartModels"],
+    name: "DHModelsTests",
+    dependencies: ["DHModels"],
     resources: [.copy("Fixtures")],
     swiftSettings: sharedSettings
   ),
 ]
 
 #if canImport(Darwin)
-  products.append(.library(name: "DaggerheartKit", targets: ["DaggerheartKit"]))
+  products.append(.library(name: "DHKit", targets: ["DHKit"]))
   targets += [
     // Observable stores + SRD bundle resources — Apple platforms only.
     .target(
-      name: "DaggerheartKit",
+      name: "DHKit",
       dependencies: [
-        "DaggerheartModels",
+        "DHModels",
         .product(name: "Logging", package: "swift-log"),
       ],
       resources: [
@@ -55,17 +55,17 @@ var targets: [Target] = [
       swiftSettings: sharedSettings + [.defaultIsolation(MainActor.self)]
     ),
 
-    // Tests for DaggerheartKit — Apple platforms only.
+    // Tests for DHKit — Apple platforms only.
     .testTarget(
-      name: "DaggerheartKitTests",
-      dependencies: ["DaggerheartKit"],
+      name: "DHKitTests",
+      dependencies: ["DHKit"],
       swiftSettings: sharedSettings + [.defaultIsolation(MainActor.self)]
     ),
   ]
 #endif
 
 let package = Package(
-  name: "DaggerheartModels",
+  name: "DHModels",
   platforms: [
     .iOS(.v17),
     .macOS(.v14),

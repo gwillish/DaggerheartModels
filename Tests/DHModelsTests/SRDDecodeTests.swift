@@ -12,7 +12,7 @@
 import Foundation
 import Testing
 
-@testable import DaggerheartModels
+@testable import DHModels
 
 struct SRDDecodeTests {
 

@@ -15,7 +15,7 @@
 //  and an NSUbiquitousContainers entry in Info.plist.
 //
 
-import DaggerheartModels
+import DHModels
 import Foundation
 import Observation
 

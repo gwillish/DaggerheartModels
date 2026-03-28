@@ -15,7 +15,7 @@
 //  - The `spotlightedSlotID` drives spotlight management in the UI.
 //
 
-import DaggerheartModels
+import DHModels
 import Foundation
 import Logging
 import Observation

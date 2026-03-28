@@ -1,4 +1,4 @@
-# DaggerheartModels
+# DHModels
 
 This is a Swift Package built to support creating tools for the TTRPG Daggerheart.
 There's a great community growing that is assembling standard ways to share details
@@ -22,14 +22,14 @@ the community ecosystem:
 Many thanks to these contributors for their work establishing the shared data
 formats that make cross-tool compatibility possible.
 
-[Documentation for DaggerheartModels](https://swiftpackageindex.com/gwillish/DaggerheartModels/documentation/daggerheartmodels)
+[Documentation for DHModels](https://swiftpackageindex.com/gwillish/DHModels/documentation/dhmodels)
 is hosted on the **Swift Package Index**.
 
 ---
 
 ## What's inside
 
-### `DaggerheartModels` 
+### `DHModels`
 
 Pure value types (structs and enums) that model Daggerheart catalog and encounter
 data. No UIKit, AppKit, Observation, or Apple-only frameworks — safe to use on
@@ -52,10 +52,10 @@ Linux, server-side Swift, and hopefully Wasm as well.
 | `DifficultyBudget` | Difficulty assessment helpers |
 | `Condition` | Status condition (name, description) |
 
-### `DaggerheartKit` — Apple-platform `@Observable` stores
+### `DHKit` — Apple-platform `@Observable` stores
 
 `@MainActor` observable classes for SwiftUI integration. Requires Apple platforms
-(iOS 17+, macOS 14+, tvOS 17+, watchOS 10+). Depends on `DaggerheartModels` and
+(iOS 17+, macOS 14+, tvOS 17+, watchOS 10+). Depends on `DHModels` and
 `swift-log`.
 
 | Type | Purpose |
@@ -88,7 +88,7 @@ Add `"$schema"` to your pack file to enable validation and autocomplete in VS Co
 
 ```json
 {
-  "$schema": "https://cdn.jsdelivr.net/gh/gwillish/DaggerheartModels@0.1.1/schemas/dhpack.schema.json",
+  "$schema": "https://cdn.jsdelivr.net/gh/gwillish/DHModels@main/schemas/dhpack.schema.json",
   "adversaries": [ ... ]
 }
 ```
@@ -107,13 +107,13 @@ A complete field reference is in [`docs/dhpack-format.md`](docs/dhpack-format.md
 
 ```swift
 // Package.swift
-.package(url: "https://github.com/gwillish/DaggerheartModels.git", from: "0.1.0"),
+.package(url: "https://github.com/gwillish/DHModels.git", from: "0.2.0"),
 
 // Apple-platform app target
-.product(name: "DaggerheartKit", package: "DaggerheartModels"),
+.product(name: "DHKit", package: "DHModels"),
 
 // Linux / server target (models only)
-.product(name: "DaggerheartModels", package: "DaggerheartModels"),
+.product(name: "DHModels", package: "DHModels"),
 ```
 
 ---
@@ -128,7 +128,26 @@ swift build
 swift test
 
 # Linux-safe model tests only
-swift test --filter DaggerheartModelsTests
+swift test --filter DHModelsTests
 ```
 
 See `CLAUDE.md` for the full development guide.
+
+---
+
+## License & Attribution
+
+The DHModels package source code is licensed under the [MIT License](LICENSE).
+
+This package bundles adversary and environment data from the Daggerheart System
+Reference Document 1.0, used under the Darrington Press Community Gaming License (DPCGL):
+
+> This product includes materials from the Daggerheart System Reference Document 1.0,
+> © Critical Role, LLC. under the terms of the Darrington Press Community Gaming (DPCGL)
+> License. More information can be found at https://www.daggerheart.com. There are no
+> previous modifications by others.
+
+Full DPCGL license text: https://darringtonpress.com/license/
+
+This project is not affiliated with, endorsed by, or sponsored by Darrington Press, LLC
+or Critical Role, LLC. Daggerheart is a trademark of Critical Role, LLC.

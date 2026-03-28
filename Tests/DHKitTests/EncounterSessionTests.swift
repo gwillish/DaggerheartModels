@@ -6,11 +6,11 @@
 //  PlayerSlot session integration, and EncounterSession factory (start from definition).
 //
 
-import DaggerheartModels
+import DHModels
 import Foundation
 import Testing
 
-@testable import DaggerheartKit
+@testable import DHKit
 
 // MARK: - EncounterSession
 

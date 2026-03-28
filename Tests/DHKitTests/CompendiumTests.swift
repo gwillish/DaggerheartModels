@@ -9,11 +9,11 @@
 //  in contexts where the SRD resources are absent.
 //
 
-import DaggerheartModels
+import DHModels
 import Foundation
 import Testing
 
-@testable import DaggerheartKit
+@testable import DHKit
 
 // MARK: - Compendium async load
 

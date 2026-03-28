@@ -6,11 +6,11 @@
 //  and resetSession behavior.
 //
 
-import DaggerheartModels
+import DHModels
 import Foundation
 import Testing
 
-@testable import DaggerheartKit
+@testable import DHKit
 
 @MainActor struct SessionRegistryTests {
 
