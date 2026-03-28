@@ -1,13 +1,26 @@
 # DaggerheartModels
 
 This is a Swift Package built to support creating tools for the TTRPG Daggerheart.
-There's a great community growing that assembling standard ways to share details
+There's a great community growing that is assembling standard ways to share details
 on players, adversaries, environments, and more in a JSON format.
 
 This package provides type-safe models for the Swift programming language, and
 some validation and extensions on those models, including a JSONSchema
 declaration, to hopefully promote more cross app, language, and platform tool
 sharing.
+
+The JSON field names and schema conventions used by this package are derived from
+the community ecosystem:
+
+| Project | Author | Contribution |
+|---|---|---|
+| [seansbox/daggerheart-srd](https://github.com/seansbox/daggerheart-srd) | Sean Box | SRD content in JSON/CSV/Markdown; primary source for `adversaries.json` and `environments.json` field names |
+| [ly0va/beastvault](https://github.com/ly0va/beastvault) | ly0va | Obsidian plugin; defined the adversary YAML/JSON import schema used by the community |
+| [javalent/fantasy-statblocks](https://github.com/javalent/fantasy-statblocks) | Jeremy Valentine | Obsidian statblock layout that established community field naming conventions |
+| [daggersearch/daggerheart-data](https://github.com/daggersearch/daggerheart-data) | daggersearch | Player-facing SRD content (classes, ancestries, items) in JSON |
+
+Many thanks to these contributors for their work establishing the shared data
+formats that make cross-tool compatibility possible.
 
 [Documentation for DaggerheartModels](https://swiftpackageindex.com/gwillish/DaggerheartModels/documentation/daggerheartmodels)
 is hosted on the **Swift Package Index**.

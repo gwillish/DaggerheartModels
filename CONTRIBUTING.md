@@ -1,10 +1,27 @@
 # Contributing to DaggerheartModels
 
-DaggerheartModels is the Swift Package backing the
-[Encounter](https://github.com/gwillish/encounter) app. It contains the
-Daggerheart model layer — the types that describe adversaries, environments,
-encounters, and content packs — as well as the observable stores and CLI tools
-built on top of them.
+A Swift package providing the Daggerheart model layer — the types that describe
+adversaries, environments, encounters, and content packs — as well as observable
+stores and CLI tools built on top of them.
+
+---
+
+## Community attribution
+
+The JSON field names and schema conventions used by this package are derived from
+the community ecosystem. If you are proposing changes to existing field names,
+the `.dhpack` JSON Schema, or the adversary/environment JSON format, please
+consider compatibility with these sources:
+
+| Project | Contribution |
+|---|---|
+| [seansbox/daggerheart-srd](https://github.com/seansbox/daggerheart-srd) | Primary source for `adversaries.json` / `environments.json` field names and SRD content in JSON |
+| [ly0va/beastvault](https://github.com/ly0va/beastvault) | Community adversary YAML/JSON import schema used by Obsidian users |
+| [javalent/fantasy-statblocks](https://github.com/javalent/fantasy-statblocks) | Statblock field naming conventions |
+| [daggersearch/daggerheart-data](https://github.com/daggersearch/daggerheart-data) | Player-facing SRD content schema (classes, ancestries, items) |
+
+Maintaining compatibility with these schemas is a goal so that content created
+for the broader community can be imported without transformation.
 
 ---
 
@@ -22,7 +39,7 @@ built on top of them.
 
 ### Out of scope
 
-- SwiftUI views — those live in [gwillish/encounter](https://github.com/gwillish/encounter)
+- SwiftUI views or other UI specific pieces.
 - App-level lifecycle, navigation, or settings
 - New content types not grounded in the Daggerheart SRD or `.dhpack` format
 
