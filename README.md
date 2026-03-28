@@ -39,7 +39,7 @@ Linux, server-side Swift, and hopefully Wasm as well.
 |---|---|
 | `Adversary` | Catalog entry for a Daggerheart adversary (stats, features, thresholds) |
 | `AdversaryType` | Adversary role enum: Bruiser, Horde, Leader, Minion, Ranged, Skulk, Social, Solo, Standard, Support |
-| `AdversaryFeature` | Named action, reaction, or passive on an adversary or environment |
+| `EncounterFeature` | Named action, reaction, or passive on an adversary or environment |
 | `FeatureType` | Feature category enum: action, reaction, passive |
 | `AttackRange` | Attack range enum: Melee, Very Close, Close, Far, Very Far |
 | `DaggerheartEnvironment` | Catalog entry for a scene environment |

@@ -122,8 +122,8 @@ nonisolated public enum DifficultyBudget {
       }
     }
 
-    /// Human-readable description for UI display.
-    public var label: String {
+    /// Human-readable display name for UI rendering.
+    public var displayName: String {
       switch self {
       case .easierFight: return "Easier/shorter fight"
       case .multipleSolos: return "Using 2+ Solo adversaries"

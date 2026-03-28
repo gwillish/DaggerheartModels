@@ -36,11 +36,11 @@ nonisolated public struct DaggerheartEnvironment: Codable, Identifiable, Sendabl
   public var isHomebrew: Bool { source != "srd" }
 
   // MARK: Description
-  public let description: String
+  public let flavorText: String
 
   // MARK: Features
   /// Passives, reactions, and actions this environment contributes to the scene.
-  public let features: [AdversaryFeature]
+  public let features: [EncounterFeature]
 
   // MARK: - CodingKeys
 
@@ -65,8 +65,8 @@ nonisolated public struct DaggerheartEnvironment: Codable, Identifiable, Sendabl
       .joined(separator: "-")
     // Normalize source to lowercase so "SRD", "srd", "Homebrew", etc. all compare equal.
     source = (try c.decodeIfPresent(String.self, forKey: .source) ?? "srd").lowercased()
-    description = try c.decode(String.self, forKey: .description)
-    features = try c.decodeIfPresent([AdversaryFeature].self, forKey: .features) ?? []
+    flavorText = try c.decode(String.self, forKey: .description)
+    features = try c.decodeIfPresent([EncounterFeature].self, forKey: .features) ?? []
   }
 
   // MARK: - Encodable
@@ -76,7 +76,7 @@ nonisolated public struct DaggerheartEnvironment: Codable, Identifiable, Sendabl
     try c.encode(id, forKey: .id)
     try c.encode(name, forKey: .name)
     try c.encode(source, forKey: .source)
-    try c.encode(description, forKey: .description)
+    try c.encode(flavorText, forKey: .description)
     try c.encode(features, forKey: .features)
   }
 
@@ -86,13 +86,27 @@ nonisolated public struct DaggerheartEnvironment: Codable, Identifiable, Sendabl
     id: String,
     name: String,
     source: String = "srd",
-    description: String,
-    features: [AdversaryFeature] = []
+    flavorText: String,
+    features: [EncounterFeature] = []
   ) {
     self.id = id
     self.name = name
     self.source = source
-    self.description = description
+    self.flavorText = flavorText
     self.features = features
+  }
+}
+
+// MARK: - CustomStringConvertible
+
+extension DaggerheartEnvironment: CustomStringConvertible {
+  /// The environment's display name.
+  public var description: String { name }
+}
+
+extension DaggerheartEnvironment: CustomDebugStringConvertible {
+  /// A debug-focused identity string with feature count.
+  public var debugDescription: String {
+    "Environment(id: \(id), name: \(name), features: \(features.count))"
   }
 }

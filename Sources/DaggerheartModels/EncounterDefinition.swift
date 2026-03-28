@@ -7,7 +7,7 @@
 //  which players are at the table, and any notes.
 //
 //  To run an encounter, create an EncounterSession from a definition
-//  using EncounterSession.start(from:using:).
+//  using EncounterSession(from:using:).
 //
 //  Catalog vs. Runtime Split:
 //  - Definition stores adversary/environment IDs (references into the Compendium).
@@ -65,7 +65,7 @@ nonisolated public struct PlayerConfig: Codable, Sendable, Equatable, Hashable, 
 /// suitable for persistence to disk, CloudKit, or JSON export.
 ///
 /// To run an encounter, create an ``EncounterSession`` from a definition
-/// using ``EncounterSession/start(from:using:)``.
+/// using ``EncounterSession/init(from:using:)``.
 nonisolated public struct EncounterDefinition: Codable, Sendable, Equatable, Hashable, Identifiable
 {
   public let id: UUID

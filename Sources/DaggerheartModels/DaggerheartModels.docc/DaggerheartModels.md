@@ -19,7 +19,7 @@ ecosystem.
 
 - ``Adversary``
 - ``AdversaryType``
-- ``AdversaryFeature``
+- ``EncounterFeature``
 - ``FeatureType``
 - ``AttackRange``
 
