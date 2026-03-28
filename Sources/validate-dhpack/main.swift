@@ -35,7 +35,8 @@ struct ValidateDHPack: ParsableCommand {
             + "\(environmentCount) environment\(environmentCount == 1 ? "" : "s"))"
         )
       } catch {
-        fputs("\(path): FAILED — \(error.localizedDescription)\n", stderr)
+        FileHandle.standardError.write(
+          Data("\(path): FAILED — \(error.localizedDescription)\n".utf8))
         failed = true
       }
     }

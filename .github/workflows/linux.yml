@@ -36,4 +36,4 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Lint
-        run: git ls-files -z '*.swift' | xargs -0 swift-format lint --strict --parallel
+        run: swift-format lint --strict --parallel --recursive Sources Tests
