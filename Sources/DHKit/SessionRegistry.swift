@@ -34,15 +34,14 @@ public final class SessionRegistry {
 
   public init() {}
 
-  /// Return the existing session for `definitionID`, or create and store a new one.
+  /// Return the existing session for `definition.id`, or create and store a new one.
   public func session(
-    for definitionID: UUID,
-    definition: EncounterDefinition,
+    for definition: EncounterDefinition,
     compendium: Compendium
   ) -> EncounterSession {
-    if let existing = sessions[definitionID] { return existing }
+    if let existing = sessions[definition.id] { return existing }
     let newSession = EncounterSession.make(from: definition, using: compendium)
-    sessions[definitionID] = newSession
+    sessions[definition.id] = newSession
     return newSession
   }
 
@@ -57,12 +56,11 @@ public final class SessionRegistry {
   /// Use this when the GM wants to restart an encounter from scratch without navigating away.
   @discardableResult
   public func resetSession(
-    for definitionID: UUID,
-    definition: EncounterDefinition,
+    for definition: EncounterDefinition,
     compendium: Compendium
   ) -> EncounterSession {
     let newSession = EncounterSession.make(from: definition, using: compendium)
-    sessions[definitionID] = newSession
+    sessions[definition.id] = newSession
     return newSession
   }
 }

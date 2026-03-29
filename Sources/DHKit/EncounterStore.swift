@@ -22,7 +22,7 @@ import Observation
 // MARK: - EncounterStoreError
 
 /// Errors thrown by ``EncounterStore`` operations.
-public enum EncounterStoreError: Error, LocalizedError, Sendable {
+nonisolated public enum EncounterStoreError: Error, LocalizedError, Sendable {
   case notFound(UUID)
   case saveFailed(UUID, String)
   case deleteFailed(UUID, String)
