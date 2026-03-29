@@ -107,6 +107,7 @@ public final class EncounterStore {
 
   @concurrent
   nonisolated private static func resolveDefaultDirectory() async -> URL {
+    #if canImport(Darwin)
     let fm = FileManager.default
     if let ubiquity = fm.url(forUbiquityContainerIdentifier: nil) {
       let dir =
@@ -116,6 +117,7 @@ public final class EncounterStore {
       try? fm.createDirectory(at: dir, withIntermediateDirectories: true)
       return dir
     }
+    #endif
     return Self.localDirectory
   }
 
@@ -161,7 +163,10 @@ public final class EncounterStore {
 
   /// Local Application Support directory. A pure URL — no file I/O performed.
   nonisolated public static var localDirectory: URL {
-    URL.applicationSupportDirectory.appending(path: "Encounters")
+    let base =
+      FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
+      ?? FileManager.default.temporaryDirectory
+    return base.appending(path: "Encounters")
   }
 
   /// Switches the storage directory and clears `definitions`.
