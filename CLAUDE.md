@@ -115,7 +115,13 @@ git ls-files -z '*.swift' | xargs -0 swift-format lint --strict --parallel
 - **swift-format lint** — runs on pull requests only; container `swift:6.2`
 
 `DHKitTests` is intentionally excluded from Linux CI because
-`DHKit` depends on `Observation`, which requires Apple platforms.
+`DHKit` uses `@MainActor` (`.defaultIsolation(MainActor.self)`) and integrates
+iCloud/filesystem persistence — not because of `Observation` itself.
+
+> **Note:** The `Observation` framework (SE-0395) is written in pure Swift and
+> compiles on Linux and Wasm. It is **not** Apple/Darwin-only. DHKit is
+> Apple-platform-only due to `@MainActor` semantics and iCloud/FileManager
+> integration, not due to `import Observation`.
 
 ---
 
@@ -130,8 +136,10 @@ Use this decision tree to choose the right target:
 - **`DHKit`** — everything else on Apple platforms: `@Observable` stores
   (`Compendium`, `EncounterStore`, `SessionRegistry`), live session types
   (`EncounterSession`, `AdversarySlot`, `PlayerSlot`, `EnvironmentSlot`,
-  `EncounterParticipant`/`CombatParticipant`), and any type that depends on
-  `Observation` or other Apple-only frameworks. Test in `DHKitTests`.
+  `EncounterParticipant`/`CombatParticipant`), and any type that requires
+  `@MainActor`, iCloud/FileManager persistence, or other Apple-only
+  infrastructure. Test in `DHKitTests`.
+  (`Observation` itself is pure Swift and not the reason for Apple-only placement.)
 
 The key distinction is **catalog vs. runtime**: a type that models static
 game-data definitions belongs in `DHModels`; a type that represents live,
