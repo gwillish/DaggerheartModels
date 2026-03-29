@@ -36,7 +36,7 @@ import Testing
     let compendium = makeCompendium()
     let def = makeDefinition()
 
-    let session = registry.session(for: def.id, definition: def, compendium: compendium)
+    let session = registry.session(for: def, compendium: compendium)
     #expect(session.adversarySlots.count == 1)
   }
 
@@ -45,8 +45,8 @@ import Testing
     let compendium = makeCompendium()
     let def = makeDefinition()
 
-    let s1 = registry.session(for: def.id, definition: def, compendium: compendium)
-    let s2 = registry.session(for: def.id, definition: def, compendium: compendium)
+    let s1 = registry.session(for: def, compendium: compendium)
+    let s2 = registry.session(for: def, compendium: compendium)
     #expect(s1 === s2)
   }
 
@@ -55,7 +55,7 @@ import Testing
     let compendium = makeCompendium()
     let def = makeDefinition()
 
-    _ = registry.session(for: def.id, definition: def, compendium: compendium)
+    _ = registry.session(for: def, compendium: compendium)
     registry.clearSession(for: def.id)
     #expect(registry.sessions[def.id] == nil)
   }
@@ -65,11 +65,11 @@ import Testing
     let compendium = makeCompendium()
     let def1 = makeDefinition(adversaryIDs: ["goblin"])
 
-    let s1 = registry.session(for: def1.id, definition: def1, compendium: compendium)
+    let s1 = registry.session(for: def1, compendium: compendium)
     s1.applyDamage(2, to: s1.adversarySlots[0].id)
     #expect(s1.adversarySlots[0].currentHP == 1)
 
-    let s2 = registry.resetSession(for: def1.id, definition: def1, compendium: compendium)
+    let s2 = registry.resetSession(for: def1, compendium: compendium)
 
     #expect(s2 !== s1)
     #expect(s2.adversarySlots[0].currentHP == 3)
@@ -80,10 +80,10 @@ import Testing
     let compendium = makeCompendium()
     let def = makeDefinition()
 
-    let s1 = registry.session(for: def.id, definition: def, compendium: compendium)
-    let s2 = registry.resetSession(for: def.id, definition: def, compendium: compendium)
+    let s1 = registry.session(for: def, compendium: compendium)
+    let s2 = registry.resetSession(for: def, compendium: compendium)
 
-    let s3 = registry.session(for: def.id, definition: def, compendium: compendium)
+    let s3 = registry.session(for: def, compendium: compendium)
     #expect(s3 === s2)
     #expect(s3 !== s1)
   }
@@ -95,8 +95,8 @@ import Testing
     var def2 = def1
     def2.adversaryIDs = ["goblin", "goblin"]
 
-    _ = registry.session(for: def1.id, definition: def1, compendium: compendium)
-    let s2 = registry.resetSession(for: def2.id, definition: def2, compendium: compendium)
+    _ = registry.session(for: def1, compendium: compendium)
+    let s2 = registry.resetSession(for: def2, compendium: compendium)
 
     #expect(s2.adversarySlots.count == 2)
   }

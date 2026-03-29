@@ -223,7 +223,7 @@ public final class EncounterSession: Identifiable, Hashable {
   }
 
   /// Reduce stress on a combat participant by ID, clamping to 0.
-  public func reduceStress(_ amount: Int, from id: UUID) {
+  public func reduceStress(_ amount: Int, for id: UUID) {
     if let i = _adversarySlots.firstIndex(where: { $0.id == id }) {
       let s = _adversarySlots[i]
       _adversarySlots[i] = s.applying(currentStress: max(0, s.currentStress - amount))

@@ -319,7 +319,7 @@ import Testing
     let slot = session.playerSlots[0]
 
     session.applyStress(4, to: slot.id)
-    session.reduceStress(2, from: slot.id)
+    session.reduceStress(2, for: slot.id)
     #expect(session.playerSlots[0].currentStress == 2)
   }
 

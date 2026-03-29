@@ -22,7 +22,7 @@ import Observation
 // MARK: - EncounterStoreError
 
 /// Errors thrown by ``EncounterStore`` operations.
-public enum EncounterStoreError: Error, LocalizedError, Sendable {
+nonisolated public enum EncounterStoreError: Error, LocalizedError, Sendable {
   case notFound(UUID)
   case saveFailed(UUID, String)
   case deleteFailed(UUID, String)
@@ -188,7 +188,10 @@ public final class EncounterStore {
   /// Valid definitions are published via ``definitions``, sorted by
   /// `modifiedAt` descending. Directory-level errors are stored in ``loadError``.
   public func load() async {
-    guard !isLoading else { return }
+    // EncounterStore is a single shared instance loaded once at app startup.
+    // Concurrent calls to load() are a programming error, not a normal operating
+    // condition — use precondition so violations surface immediately in debug builds.
+    precondition(!isLoading, "load() called while a load is already in progress")
     isLoading = true
     loadError = nil
     defer { isLoading = false }
