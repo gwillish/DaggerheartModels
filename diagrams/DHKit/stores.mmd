@@ -82,33 +82,6 @@ classDiagram
 
     Compendium ..> CompendiumError : throws
 
-    %% ── EncounterStore ───────────────────────────────────────────────────
-    class EncounterStore {
-        <<Observable, MainActor>>
-        +[EncounterDefinition] definitions
-        +URL directory
-        +Bool isLoading
-        +Error? loadError
-        +init(directory: URL)
-        +defaultDirectory() URL$ async
-        +localDirectory URL$
-        +relocate(to:)
-        +load() async
-        +create(name:) async throws
-        +save(_:) async throws
-        +delete(id:) async throws
-        +duplicate(id:) async throws
-    }
-
-    class EncounterStoreError {
-        <<enumeration>>
-        notFound(UUID)
-        saveFailed(UUID, String)
-        deleteFailed(UUID, String)
-    }
-
-    EncounterStore ..> EncounterStoreError : throws
-
     %% ── SessionRegistry ──────────────────────────────────────────────────
     class SessionRegistry {
         <<Observable, MainActor>>
