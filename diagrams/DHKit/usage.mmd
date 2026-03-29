@@ -1,0 +1,23 @@
+sequenceDiagram
+    participant App
+    participant Compendium
+    participant EncounterStore
+    participant SessionRegistry
+    participant EncounterSession
+
+    App->>Compendium: init() + load()
+    Note over Compendium: Decodes SRD JSON from bundle
+
+    App->>EncounterStore: init(directory:) + load()
+    Note over EncounterStore: Reads .encounter.json files from disk
+
+    App->>EncounterStore: create(name:)
+    EncounterStore-->>App: definitions updated
+
+    App->>SessionRegistry: session(for:definition:compendium:)
+    SessionRegistry->>EncounterSession: make(from:using:)
+    Note over EncounterSession: Resolves IDs via Compendium and builds slots
+
+    App->>EncounterSession: add(player:) / spotlight(id:)
+    App->>EncounterSession: applyDamage(_:to:) / applyCondition(_:to:)
+    App->>EncounterStore: save(definition) when prep changes

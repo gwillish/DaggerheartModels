@@ -1,0 +1,90 @@
+classDiagram
+    direction TB
+
+    %% ── Adversary cluster ─────────────────────────────────────────────────
+    class Adversary {
+        +String id
+        +String name
+        +String source
+        +Int tier
+        +AdversaryType role
+        +String flavorText
+        +String? motivesAndTactics
+        +Int difficulty
+        +Int thresholdMajor
+        +Int thresholdSevere
+        +Int hp
+        +Int stress
+        +String attackModifier
+        +String attackName
+        +AttackRange attackRange
+        +String damage
+        +String? experience
+        +[EncounterFeature] features
+        +Bool isHomebrew
+    }
+
+    class AdversaryType {
+        <<enumeration>>
+        bruiser
+        horde
+        leader
+        minion
+        ranged
+        skulk
+        social
+        solo
+        standard
+        support
+    }
+
+    class AttackRange {
+        <<enumeration>>
+        melee
+        veryClose
+        close
+        far
+        veryFar
+    }
+
+    class FeatureType {
+        <<enumeration>>
+        action
+        reaction
+        passive
+        +inferred(from:) FeatureType$
+    }
+
+    class EncounterFeature {
+        +String id
+        +String name
+        +String text
+        +FeatureType kind
+    }
+
+    Adversary --> AdversaryType : role
+    Adversary --> AttackRange : attackRange
+    Adversary "1" *-- "0..*" EncounterFeature : features
+    EncounterFeature --> FeatureType : kind
+
+    %% ── Environment cluster ───────────────────────────────────────────────
+    class DaggerheartEnvironment {
+        +String id
+        +String name
+        +String source
+        +String flavorText
+        +[EncounterFeature] features
+        +Bool isHomebrew
+    }
+
+    DaggerheartEnvironment "1" *-- "0..*" EncounterFeature : features
+
+    %% ── Conditions ────────────────────────────────────────────────────────
+    class Condition {
+        <<enumeration>>
+        hidden
+        restrained
+        vulnerable
+        custom(String)
+        +String displayName
+    }

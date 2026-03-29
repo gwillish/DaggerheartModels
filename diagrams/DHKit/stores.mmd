@@ -1,0 +1,100 @@
+classDiagram
+    direction TB
+
+    %% ── EncounterSession ─────────────────────────────────────────────────
+    class EncounterSession {
+        <<Observable, MainActor>>
+        +UUID id
+        +String name
+        +[AdversarySlot] adversarySlots
+        +[PlayerSlot] playerSlots
+        +[EnvironmentSlot] environmentSlots
+        +Int fearPool
+        +Int hopePool
+        +UUID? spotlightedSlotID
+        +Int spotlightCount
+        +String gmNotes
+        +[AdversarySlot] activeAdversaries
+        +Bool isOver
+        +add(adversary: Adversary, customName:)
+        +add(environment: DaggerheartEnvironment)
+        +add(player: PlayerSlot)
+        +removeAdversary(withID:)
+        +removePlayer(withID:)
+        +spotlight(id:)
+        +yieldSpotlight()
+        +applyDamage(_:to:)
+        +applyHealing(_:to:)
+        +applyStress(_:to:)
+        +reduceStress(_:from:)
+        +applyCondition(_:to:)
+        +removeCondition(_:from:)
+        +markArmorSlot(for:)
+        +restoreArmorSlot(for:)
+        +incrementFear(by:)
+        +spendFear(by:)
+        +incrementHope(by:)
+        +spendHope(by:)
+        +make(from: EncounterDefinition, using: Compendium) EncounterSession$
+    }
+
+    %% slot types shown as aggregated members only — see participants diagram
+    class AdversarySlot { +UUID id }
+    class PlayerSlot { +UUID id }
+    class EnvironmentSlot { +UUID id }
+
+    EncounterSession "1" *-- "0..*" AdversarySlot : adversarySlots
+    EncounterSession "1" *-- "0..*" PlayerSlot : playerSlots
+    EncounterSession "1" *-- "0..*" EnvironmentSlot : environmentSlots
+
+    %% ── Compendium ───────────────────────────────────────────────────────
+    class Compendium {
+        <<Observable, MainActor>>
+        +[String: Adversary] adversariesByID
+        +[String: DaggerheartEnvironment] environmentsByID
+        +[Adversary] adversaries
+        +[DaggerheartEnvironment] environments
+        +[Adversary] homebrewAdversaries
+        +[DaggerheartEnvironment] homebrewEnvironments
+        +Bool isLoading
+        +CompendiumError? loadError
+        +init(bundle: Bundle?)
+        +load() async throws
+        +adversary(id:) Adversary?
+        +environment(id:) DaggerheartEnvironment?
+        +adversaries(ofTier:) [Adversary]
+        +adversaries(ofRole:) [Adversary]
+        +adversaries(matching:) [Adversary]
+        +addAdversary(_:)
+        +removeHomebrewAdversary(id:)
+        +addEnvironment(_:)
+        +removeHomebrewEnvironment(id:)
+        +replaceSRDContent(adversaries:environments:)
+        +replaceSourceContent(sourceID:adversaries:environments:)
+        +removeSourceContent(sourceID:)
+    }
+
+    class CompendiumError {
+        <<enumeration>>
+        fileNotFound(resourceName:)
+        decodingFailed(resourceName:underlying:)
+    }
+
+    Compendium ..> CompendiumError : throws
+
+    %% ── SessionRegistry ──────────────────────────────────────────────────
+    class SessionRegistry {
+        <<Observable, MainActor>>
+        +[UUID: EncounterSession] sessions
+        +init()
+        +session(for:definition:compendium:) EncounterSession
+        +clearSession(for:)
+        +resetSession(for:definition:compendium:) EncounterSession
+    }
+
+    SessionRegistry "1" o-- "0..*" EncounterSession : sessions
+
+    %% ── Cross-store dependencies ─────────────────────────────────────────
+    EncounterSession ..> Compendium : resolves catalog via make
+    SessionRegistry ..> Compendium : resolves catalog
+    SessionRegistry ..> EncounterSession : creates and owns

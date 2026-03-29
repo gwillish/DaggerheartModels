@@ -1,0 +1,61 @@
+classDiagram
+    direction TB
+
+    %% ── Encounter definition (prep / save layer) ──────────────────────────
+    class EncounterDefinition {
+        +UUID id
+        +String name
+        +[String] adversaryIDs
+        +[String] environmentIDs
+        +[PlayerConfig] playerConfigs
+        +String gmNotes
+        +Date createdAt
+        +Date modifiedAt
+    }
+
+    class PlayerConfig {
+        +UUID id
+        +String name
+        +Int maxHP
+        +Int maxStress
+        +Int evasion
+        +Int thresholdMajor
+        +Int thresholdSevere
+        +Int armorSlots
+    }
+
+    EncounterDefinition "1" *-- "0..*" PlayerConfig : playerConfigs
+
+    %% adversaryIDs and environmentIDs are [String] slugs resolved at
+    %% session creation via Compendium (DHKit)
+
+    %% ── Difficulty budget (static utility) ───────────────────────────────
+    class DifficultyBudget {
+        <<utility>>
+        +cost(for: AdversaryType) Int$
+        +baseBudget(playerCount:) Int$
+        +totalCost(for: [AdversaryType]) Int$
+        +rating(adversaryTypes:playerCount:budgetAdjustment:) Rating$
+        +suggestedAdjustments(adversaryTypes:) Set~Adjustment~$
+    }
+
+    class DifficultyBudget_Rating {
+        +Int cost
+        +Int budget
+        +Int remaining
+    }
+
+    class DifficultyBudget_Adjustment {
+        <<enumeration>>
+        easierFight
+        multipleSolos
+        boostedDamage
+        lowerTierAdversary
+        noBigThreats
+        harderFight
+        +Int pointValue
+        +String displayName
+    }
+
+    DifficultyBudget ..> DifficultyBudget_Rating : returns
+    DifficultyBudget ..> DifficultyBudget_Adjustment : returns

@@ -1,0 +1,53 @@
+classDiagram
+    direction LR
+
+    %% ── Content pack ──────────────────────────────────────────────────────
+    class DHPackContent {
+        +[Adversary] adversaries
+        +[DaggerheartEnvironment] environments
+    }
+
+    class Adversary {
+        <<catalog type — see catalog diagram>>
+    }
+
+    class DaggerheartEnvironment {
+        <<catalog type — see catalog diagram>>
+    }
+
+    DHPackContent "1" *-- "0..*" Adversary : adversaries
+    DHPackContent "1" *-- "0..*" DaggerheartEnvironment : environments
+
+    %% ── Content source tracking ───────────────────────────────────────────
+    class ContentSource {
+        +UUID id
+        +String? displayName
+        +URL? url
+        +Date addedAt
+        +Date? lastFetchedAt
+        +ContentFingerprint? fingerprint
+        +Int consecutiveFailures
+        +Bool isLocalImport
+        +Bool isThrottled(at: Date)
+        +Date nextAllowedFetch(at: Date)
+        +ContentSource recordingFailure(at: Date)
+        +ContentSource recordingSuccess(fingerprint:at:)
+    }
+
+    class ContentFingerprint {
+        +String sha256
+        +String? etag
+    }
+
+    ContentSource --> ContentFingerprint : fingerprint
+
+    %% ── Errors ────────────────────────────────────────────────────────────
+    class ContentStoreError {
+        <<enumeration>>
+        fetchThrottled
+        networkError
+        decodingFailed
+        writeFailed
+        readFailed
+        invalidContent
+    }

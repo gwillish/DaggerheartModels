@@ -1,0 +1,61 @@
+classDiagram
+    direction TB
+
+    %% ── Protocols ─────────────────────────────────────────────────────────
+    class EncounterParticipant {
+        <<protocol>>
+        +UUID id
+    }
+
+    class CombatParticipant {
+        <<protocol>>
+        +Int currentHP
+        +Int maxHP
+        +Int currentStress
+        +Int maxStress
+        +Set~Condition~ conditions
+    }
+
+    EncounterParticipant <|-- CombatParticipant
+
+    %% ── Slot value types (nonisolated) ────────────────────────────────────
+    class AdversarySlot {
+        +UUID id
+        +String adversaryID
+        +String? customName
+        +Int maxHP
+        +Int maxStress
+        +Int currentHP
+        +Int currentStress
+        +Bool isDefeated
+        +Set~Condition~ conditions
+        +init(from: Adversary, customName:)
+        +applying(currentHP:currentStress:isDefeated:conditions:) AdversarySlot
+    }
+
+    class PlayerSlot {
+        +UUID id
+        +String name
+        +Int maxHP
+        +Int currentHP
+        +Int maxStress
+        +Int currentStress
+        +Int evasion
+        +Int thresholdMajor
+        +Int thresholdSevere
+        +Int armorSlots
+        +Int currentArmorSlots
+        +Set~Condition~ conditions
+        +applying(currentHP:currentStress:currentArmorSlots:conditions:) PlayerSlot
+    }
+
+    class EnvironmentSlot {
+        +UUID id
+        +String environmentID
+        +Bool isActive
+        +applying(isActive:) EnvironmentSlot
+    }
+
+    CombatParticipant <|.. AdversarySlot
+    CombatParticipant <|.. PlayerSlot
+    EncounterParticipant <|.. EnvironmentSlot
