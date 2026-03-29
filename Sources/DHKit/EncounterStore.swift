@@ -108,15 +108,15 @@ public final class EncounterStore {
   @concurrent
   nonisolated private static func resolveDefaultDirectory() async -> URL {
     #if canImport(Darwin)
-    let fm = FileManager.default
-    if let ubiquity = fm.url(forUbiquityContainerIdentifier: nil) {
-      let dir =
-        ubiquity
-        .appending(path: "Documents")
-        .appending(path: "Encounters")
-      try? fm.createDirectory(at: dir, withIntermediateDirectories: true)
-      return dir
-    }
+      let fm = FileManager.default
+      if let ubiquity = fm.url(forUbiquityContainerIdentifier: nil) {
+        let dir =
+          ubiquity
+          .appending(path: "Documents")
+          .appending(path: "Encounters")
+        try? fm.createDirectory(at: dir, withIntermediateDirectories: true)
+        return dir
+      }
     #endif
     return Self.localDirectory
   }
