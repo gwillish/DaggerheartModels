@@ -218,6 +218,11 @@ public final class EncounterStore {
   /// invariant is maintained regardless of whether the caller has updated
   /// individual properties through their `didSet` observers.
   ///
+  /// If a save for the same definition ID is already in flight, this call
+  /// returns immediately without writing or queuing. Callers that need to
+  /// ensure the latest value is persisted should await the first save before
+  /// calling again.
+  ///
   /// - Throws: ``EncounterStoreError/notFound(_:)`` if the ID is not in
   ///   the current ``definitions``.
   public func save(_ definition: EncounterDefinition) async throws {

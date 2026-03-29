@@ -60,4 +60,25 @@ public struct AdversarySlot: CombatParticipant, Sendable, Equatable, Hashable {
     self.isDefeated = isDefeated
     self.conditions = conditions
   }
+
+  /// Returns a copy of this slot with the specified mutable fields replaced.
+  ///
+  /// Omit any parameter to preserve the existing value. This is the preferred
+  /// way to produce updated copies; it avoids repeating every unchanged field
+  /// at mutation sites in ``EncounterSession``.
+  public func applying(
+    currentHP: Int? = nil,
+    currentStress: Int? = nil,
+    isDefeated: Bool? = nil,
+    conditions: Set<Condition>? = nil
+  ) -> AdversarySlot {
+    AdversarySlot(
+      id: id, adversaryID: adversaryID, customName: customName,
+      maxHP: maxHP, maxStress: maxStress,
+      currentHP: currentHP ?? self.currentHP,
+      currentStress: currentStress ?? self.currentStress,
+      isDefeated: isDefeated ?? self.isDefeated,
+      conditions: conditions ?? self.conditions
+    )
+  }
 }

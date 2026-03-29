@@ -246,7 +246,7 @@ public final class Compendium {
   }
 
   /// Return all adversaries of a given role.
-  public func adversaries(ofType role: AdversaryType) -> [Adversary] {
+  public func adversaries(ofRole role: AdversaryType) -> [Adversary] {
     adversaries.filter { $0.role == role }
   }
 

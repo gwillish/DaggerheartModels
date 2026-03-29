@@ -381,7 +381,7 @@ import Testing
     session.add(player: makePlayer())
     let slotID = session.playerSlots[0].id
 
-    session.removePlayer(id: slotID)
+    session.removePlayer(withID: slotID)
     #expect(session.playerSlots.isEmpty)
     #expect(session.spotlightedSlotID == nil)
   }

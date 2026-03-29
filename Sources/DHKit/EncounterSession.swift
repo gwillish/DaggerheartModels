@@ -132,7 +132,7 @@ public final class EncounterSession: Identifiable, Hashable {
   }
 
   /// Remove an adversary slot by ID.
-  public func removeAdversary(id: UUID) {
+  public func removeAdversary(withID id: UUID) {
     _adversarySlots.removeAll { $0.id == id }
     if spotlightedSlotID == id { spotlightedSlotID = nil }
   }
@@ -145,7 +145,7 @@ public final class EncounterSession: Identifiable, Hashable {
   }
 
   /// Remove a player slot by ID.
-  public func removePlayer(id: UUID) {
+  public func removePlayer(withID id: UUID) {
     _playerSlots.removeAll { $0.id == id }
     if spotlightedSlotID == id { spotlightedSlotID = nil }
   }
@@ -178,12 +178,7 @@ public final class EncounterSession: Identifiable, Hashable {
     if let i = _adversarySlots.firstIndex(where: { $0.id == id }) {
       let s = _adversarySlots[i]
       let newHP = max(0, s.currentHP - amount)
-      _adversarySlots[i] = AdversarySlot(
-        id: s.id, adversaryID: s.adversaryID, customName: s.customName,
-        maxHP: s.maxHP, maxStress: s.maxStress,
-        currentHP: newHP, currentStress: s.currentStress,
-        isDefeated: newHP == 0, conditions: s.conditions
-      )
+      _adversarySlots[i] = s.applying(currentHP: newHP, isDefeated: newHP == 0)
       if newHP == 0 {
         logger.info("Slot \(id) defeated")
       } else {
@@ -192,16 +187,11 @@ public final class EncounterSession: Identifiable, Hashable {
       return
     }
     if let i = _playerSlots.firstIndex(where: { $0.id == id }) {
-      let s = _playerSlots[i]
-      _playerSlots[i] = PlayerSlot(
-        id: s.id, name: s.name, maxHP: s.maxHP,
-        currentHP: max(0, s.currentHP - amount),
-        maxStress: s.maxStress, currentStress: s.currentStress,
-        evasion: s.evasion, thresholdMajor: s.thresholdMajor,
-        thresholdSevere: s.thresholdSevere, armorSlots: s.armorSlots,
-        currentArmorSlots: s.currentArmorSlots, conditions: s.conditions
-      )
+      _playerSlots[i] = _playerSlots[i].applying(
+        currentHP: max(0, _playerSlots[i].currentHP - amount))
+      return
     }
+    logger.warning("applyDamage: no slot found for id \(id)")
   }
 
   /// Heal a combat participant by ID, clamping HP to the slot's maximum.
@@ -210,79 +200,47 @@ public final class EncounterSession: Identifiable, Hashable {
     if let i = _adversarySlots.firstIndex(where: { $0.id == id }) {
       let s = _adversarySlots[i]
       let newHP = min(s.maxHP, s.currentHP + amount)
-      _adversarySlots[i] = AdversarySlot(
-        id: s.id, adversaryID: s.adversaryID, customName: s.customName,
-        maxHP: s.maxHP, maxStress: s.maxStress,
-        currentHP: newHP, currentStress: s.currentStress,
-        isDefeated: newHP > 0 ? false : s.isDefeated,
-        conditions: s.conditions
-      )
+      _adversarySlots[i] = s.applying(
+        currentHP: newHP, isDefeated: newHP > 0 ? false : s.isDefeated)
       logger.debug("Slot \(id) healed \(amount), HP now \(newHP)/\(s.maxHP)")
       return
     }
     if let i = _playerSlots.firstIndex(where: { $0.id == id }) {
       let s = _playerSlots[i]
-      _playerSlots[i] = PlayerSlot(
-        id: s.id, name: s.name, maxHP: s.maxHP,
-        currentHP: min(s.maxHP, s.currentHP + amount),
-        maxStress: s.maxStress, currentStress: s.currentStress,
-        evasion: s.evasion, thresholdMajor: s.thresholdMajor,
-        thresholdSevere: s.thresholdSevere, armorSlots: s.armorSlots,
-        currentArmorSlots: s.currentArmorSlots, conditions: s.conditions
-      )
+      _playerSlots[i] = s.applying(currentHP: min(s.maxHP, s.currentHP + amount))
+      return
     }
+    logger.warning("applyHealing: no slot found for id \(id)")
   }
 
   /// Apply stress to a combat participant by ID, clamping to the slot's maximum.
   public func applyStress(_ amount: Int, to id: UUID) {
     if let i = _adversarySlots.firstIndex(where: { $0.id == id }) {
       let s = _adversarySlots[i]
-      _adversarySlots[i] = AdversarySlot(
-        id: s.id, adversaryID: s.adversaryID, customName: s.customName,
-        maxHP: s.maxHP, maxStress: s.maxStress,
-        currentHP: s.currentHP,
-        currentStress: min(s.maxStress, s.currentStress + amount),
-        isDefeated: s.isDefeated, conditions: s.conditions
-      )
+      _adversarySlots[i] = s.applying(currentStress: min(s.maxStress, s.currentStress + amount))
       return
     }
     if let i = _playerSlots.firstIndex(where: { $0.id == id }) {
       let s = _playerSlots[i]
-      _playerSlots[i] = PlayerSlot(
-        id: s.id, name: s.name, maxHP: s.maxHP, currentHP: s.currentHP,
-        maxStress: s.maxStress,
-        currentStress: min(s.maxStress, s.currentStress + amount),
-        evasion: s.evasion, thresholdMajor: s.thresholdMajor,
-        thresholdSevere: s.thresholdSevere, armorSlots: s.armorSlots,
-        currentArmorSlots: s.currentArmorSlots, conditions: s.conditions
-      )
+      _playerSlots[i] = s.applying(currentStress: min(s.maxStress, s.currentStress + amount))
+      return
     }
+    logger.warning("applyStress: no slot found for id \(id)")
   }
 
   /// Reduce stress on a combat participant by ID, clamping to 0.
   public func reduceStress(_ amount: Int, from id: UUID) {
     if let i = _adversarySlots.firstIndex(where: { $0.id == id }) {
       let s = _adversarySlots[i]
-      _adversarySlots[i] = AdversarySlot(
-        id: s.id, adversaryID: s.adversaryID, customName: s.customName,
-        maxHP: s.maxHP, maxStress: s.maxStress,
-        currentHP: s.currentHP,
-        currentStress: max(0, s.currentStress - amount),
-        isDefeated: s.isDefeated, conditions: s.conditions
-      )
+      _adversarySlots[i] = s.applying(currentStress: max(0, s.currentStress - amount))
       return
     }
     if let i = _playerSlots.firstIndex(where: { $0.id == id }) {
       let s = _playerSlots[i]
-      _playerSlots[i] = PlayerSlot(
-        id: s.id, name: s.name, maxHP: s.maxHP, currentHP: s.currentHP,
-        maxStress: s.maxStress,
-        currentStress: max(0, s.currentStress - amount),
-        evasion: s.evasion, thresholdMajor: s.thresholdMajor,
-        thresholdSevere: s.thresholdSevere, armorSlots: s.armorSlots,
-        currentArmorSlots: s.currentArmorSlots, conditions: s.conditions
-      )
+      _playerSlots[i] = s.applying(currentStress: max(0, s.currentStress - amount))
+      return
     }
+    logger.warning("reduceStress: no slot found for id \(id)")
   }
 
   // MARK: - Condition Management
@@ -297,56 +255,30 @@ public final class EncounterSession: Identifiable, Hashable {
       return
     }
     if let i = _adversarySlots.firstIndex(where: { $0.id == id }) {
-      let s = _adversarySlots[i]
-      var newConditions = s.conditions
-      newConditions.insert(condition)
-      _adversarySlots[i] = AdversarySlot(
-        id: s.id, adversaryID: s.adversaryID, customName: s.customName,
-        maxHP: s.maxHP, maxStress: s.maxStress,
-        currentHP: s.currentHP, currentStress: s.currentStress,
-        isDefeated: s.isDefeated, conditions: newConditions
-      )
+      var updated = _adversarySlots[i].conditions
+      updated.insert(condition)
+      _adversarySlots[i] = _adversarySlots[i].applying(conditions: updated)
       return
     }
     if let i = _playerSlots.firstIndex(where: { $0.id == id }) {
-      let s = _playerSlots[i]
-      var newConditions = s.conditions
-      newConditions.insert(condition)
-      _playerSlots[i] = PlayerSlot(
-        id: s.id, name: s.name, maxHP: s.maxHP, currentHP: s.currentHP,
-        maxStress: s.maxStress, currentStress: s.currentStress,
-        evasion: s.evasion, thresholdMajor: s.thresholdMajor,
-        thresholdSevere: s.thresholdSevere, armorSlots: s.armorSlots,
-        currentArmorSlots: s.currentArmorSlots, conditions: newConditions
-      )
+      var updated = _playerSlots[i].conditions
+      updated.insert(condition)
+      _playerSlots[i] = _playerSlots[i].applying(conditions: updated)
     }
   }
 
   /// Remove a condition from a combat participant by ID.
   public func removeCondition(_ condition: Condition, from id: UUID) {
     if let i = _adversarySlots.firstIndex(where: { $0.id == id }) {
-      let s = _adversarySlots[i]
-      var newConditions = s.conditions
-      newConditions.remove(condition)
-      _adversarySlots[i] = AdversarySlot(
-        id: s.id, adversaryID: s.adversaryID, customName: s.customName,
-        maxHP: s.maxHP, maxStress: s.maxStress,
-        currentHP: s.currentHP, currentStress: s.currentStress,
-        isDefeated: s.isDefeated, conditions: newConditions
-      )
+      var updated = _adversarySlots[i].conditions
+      updated.remove(condition)
+      _adversarySlots[i] = _adversarySlots[i].applying(conditions: updated)
       return
     }
     if let i = _playerSlots.firstIndex(where: { $0.id == id }) {
-      let s = _playerSlots[i]
-      var newConditions = s.conditions
-      newConditions.remove(condition)
-      _playerSlots[i] = PlayerSlot(
-        id: s.id, name: s.name, maxHP: s.maxHP, currentHP: s.currentHP,
-        maxStress: s.maxStress, currentStress: s.currentStress,
-        evasion: s.evasion, thresholdMajor: s.thresholdMajor,
-        thresholdSevere: s.thresholdSevere, armorSlots: s.armorSlots,
-        currentArmorSlots: s.currentArmorSlots, conditions: newConditions
-      )
+      var updated = _playerSlots[i].conditions
+      updated.remove(condition)
+      _playerSlots[i] = _playerSlots[i].applying(conditions: updated)
     }
   }
 
@@ -357,27 +289,14 @@ public final class EncounterSession: Identifiable, Hashable {
     guard let i = _playerSlots.firstIndex(where: { $0.id == slotID }) else { return }
     let s = _playerSlots[i]
     guard s.currentArmorSlots > 0 else { return }
-    _playerSlots[i] = PlayerSlot(
-      id: s.id, name: s.name, maxHP: s.maxHP, currentHP: s.currentHP,
-      maxStress: s.maxStress, currentStress: s.currentStress,
-      evasion: s.evasion, thresholdMajor: s.thresholdMajor,
-      thresholdSevere: s.thresholdSevere, armorSlots: s.armorSlots,
-      currentArmorSlots: s.currentArmorSlots - 1, conditions: s.conditions
-    )
+    _playerSlots[i] = s.applying(currentArmorSlots: s.currentArmorSlots - 1)
   }
 
   /// Restore one Armor Slot on a player (undo a mark, or recover via a rest ability).
   public func restoreArmorSlot(for slotID: UUID) {
     guard let i = _playerSlots.firstIndex(where: { $0.id == slotID }) else { return }
     let s = _playerSlots[i]
-    _playerSlots[i] = PlayerSlot(
-      id: s.id, name: s.name, maxHP: s.maxHP, currentHP: s.currentHP,
-      maxStress: s.maxStress, currentStress: s.currentStress,
-      evasion: s.evasion, thresholdMajor: s.thresholdMajor,
-      thresholdSevere: s.thresholdSevere, armorSlots: s.armorSlots,
-      currentArmorSlots: min(s.armorSlots, s.currentArmorSlots + 1),
-      conditions: s.conditions
-    )
+    _playerSlots[i] = s.applying(currentArmorSlots: min(s.armorSlots, s.currentArmorSlots + 1))
   }
 
   // MARK: - Fear & Hope

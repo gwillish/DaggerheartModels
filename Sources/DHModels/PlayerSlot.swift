@@ -77,4 +77,25 @@ public struct PlayerSlot: CombatParticipant, Sendable, Equatable, Hashable {
     self.currentArmorSlots = currentArmorSlots ?? armorSlots
     self.conditions = conditions
   }
+
+  /// Returns a copy of this slot with the specified mutable fields replaced.
+  ///
+  /// Omit any parameter to preserve the existing value. This is the preferred
+  /// way to produce updated copies; it avoids repeating every unchanged field
+  /// at mutation sites in ``EncounterSession``.
+  public func applying(
+    currentHP: Int? = nil,
+    currentStress: Int? = nil,
+    currentArmorSlots: Int? = nil,
+    conditions: Set<Condition>? = nil
+  ) -> PlayerSlot {
+    PlayerSlot(
+      id: id, name: name,
+      maxHP: maxHP, currentHP: currentHP ?? self.currentHP,
+      maxStress: maxStress, currentStress: currentStress ?? self.currentStress,
+      evasion: evasion, thresholdMajor: thresholdMajor, thresholdSevere: thresholdSevere,
+      armorSlots: armorSlots, currentArmorSlots: currentArmorSlots ?? self.currentArmorSlots,
+      conditions: conditions ?? self.conditions
+    )
+  }
 }

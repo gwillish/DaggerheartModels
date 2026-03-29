@@ -402,7 +402,7 @@ struct DifficultyBudgetTests {
       adversaryTypes: [.standard, .standard, .minion],
       playerCount: 4
     )
-    #expect(rating.totalCost == 5)
+    #expect(rating.cost == 5)
     #expect(rating.budget == 14)
     #expect(rating.remaining == 9)
   }
@@ -412,7 +412,7 @@ struct DifficultyBudgetTests {
       adversaryTypes: [.solo, .solo, .bruiser],
       playerCount: 3
     )
-    #expect(rating.totalCost == 14)
+    #expect(rating.cost == 14)
     #expect(rating.budget == 11)
     #expect(rating.remaining == -3)
   }
@@ -424,7 +424,7 @@ struct DifficultyBudgetTests {
       budgetAdjustment: -2
     )
     #expect(rating.budget == 12)
-    #expect(rating.totalCost == 2)
+    #expect(rating.cost == 2)
     #expect(rating.remaining == 10)
   }
 
