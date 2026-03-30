@@ -8,10 +8,9 @@
 //
 
 #if canImport(FoundationEssentials)
-  import FoundationEssentials
-#else
-  import Foundation
+import FoundationEssentials
 #endif
+import Foundation
 
 /// A registered content source for community adversary and environment packs.
 ///

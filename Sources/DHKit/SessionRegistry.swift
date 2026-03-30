@@ -14,10 +14,9 @@ import DHModels
 import Observation
 
 #if canImport(FoundationEssentials)
-  import FoundationEssentials
-#else
-  import Foundation
+import FoundationEssentials
 #endif
+import Foundation
 
 /// In-memory registry of live ``EncounterSession`` objects, keyed by definition ID.
 ///

@@ -19,10 +19,9 @@ import Logging
 import Observation
 
 #if canImport(FoundationEssentials)
-  import FoundationEssentials
-#else
-  import Foundation
+import FoundationEssentials
 #endif
+import Foundation
 
 // MARK: - CompendiumError
 

@@ -14,10 +14,9 @@ import Testing
 @testable import DHModels
 
 #if canImport(FoundationEssentials)
-  import FoundationEssentials
-#else
-  import Foundation
+import FoundationEssentials
 #endif
+import Foundation
 
 struct SRDDecodeTests {
 

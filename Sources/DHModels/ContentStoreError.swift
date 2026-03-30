@@ -6,10 +6,9 @@
 //
 
 #if canImport(FoundationEssentials)
-  import FoundationEssentials
-#else
-  import Foundation
+import FoundationEssentials
 #endif
+import Foundation
 
 /// Errors produced by the content loading and update pipeline.
 nonisolated public enum ContentStoreError: Error, LocalizedError, Sendable {

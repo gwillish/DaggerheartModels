@@ -14,10 +14,9 @@
 //
 
 #if canImport(FoundationEssentials)
-  import FoundationEssentials
-#else
-  import Foundation
+import FoundationEssentials
 #endif
+import Foundation
 
 /// Pure-function namespace for computing Daggerheart encounter difficulty
 /// using the Battle Points system from the SRD.

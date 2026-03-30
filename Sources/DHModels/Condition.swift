@@ -14,10 +14,9 @@
 //
 
 #if canImport(FoundationEssentials)
-  import FoundationEssentials
-#else
-  import Foundation
+import FoundationEssentials
 #endif
+import Foundation
 
 /// A condition that can be applied to a combatant in a Daggerheart encounter.
 ///

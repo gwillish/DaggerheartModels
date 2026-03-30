@@ -12,10 +12,9 @@ import Testing
 @testable import DHKit
 
 #if canImport(FoundationEssentials)
-  import FoundationEssentials
-#else
-  import Foundation
+import FoundationEssentials
 #endif
+import Foundation
 
 @MainActor struct SessionRegistryTests {
 
