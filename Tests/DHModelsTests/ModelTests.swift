@@ -442,6 +442,93 @@ struct DifficultyBudgetTests {
   }
 }
 
+// MARK: - Player
+
+struct PlayerTests {
+
+  @Test func playerIsValueType() {
+    var player1 = Player(
+      name: "Aldric", maxHP: 6, maxStress: 6,
+      evasion: 12, thresholdMajor: 8, thresholdSevere: 15, armorSlots: 3
+    )
+    let player2 = player1
+    player1.name = "Modified"
+    #expect(player2.name == "Aldric")
+  }
+
+  @Test func playerCodableRoundTrip() throws {
+    let player = Player(
+      name: "Sera", maxHP: 8, maxStress: 6,
+      evasion: 14, thresholdMajor: 10, thresholdSevere: 18, armorSlots: 4
+    )
+    let data = try JSONEncoder().encode(player)
+    let decoded = try JSONDecoder().decode(Player.self, from: data)
+
+    #expect(decoded.id == player.id)
+    #expect(decoded.name == "Sera")
+    #expect(decoded.maxHP == 8)
+    #expect(decoded.maxStress == 6)
+    #expect(decoded.evasion == 14)
+    #expect(decoded.thresholdMajor == 10)
+    #expect(decoded.thresholdSevere == 18)
+    #expect(decoded.armorSlots == 4)
+  }
+
+  @Test func asConfigPreservesAllFields() {
+    let player = Player(
+      name: "Torven", maxHP: 10, maxStress: 5,
+      evasion: 11, thresholdMajor: 7, thresholdSevere: 14, armorSlots: 2
+    )
+    let config = player.asConfig()
+
+    #expect(config.id == player.id)
+    #expect(config.name == player.name)
+    #expect(config.maxHP == player.maxHP)
+    #expect(config.maxStress == player.maxStress)
+    #expect(config.evasion == player.evasion)
+    #expect(config.thresholdMajor == player.thresholdMajor)
+    #expect(config.thresholdSevere == player.thresholdSevere)
+    #expect(config.armorSlots == player.armorSlots)
+  }
+}
+
+// MARK: - Party
+
+struct PartyTests {
+
+  @Test func partyIsValueType() {
+    var party1 = Party(name: "The Wanderers")
+    let party2 = party1
+    party1.name = "Modified"
+    #expect(party2.name == "The Wanderers")
+  }
+
+  @Test func partyCodableRoundTrip() throws {
+    let ids = [UUID(), UUID(), UUID()]
+    let party = Party(name: "Ironclad Company", playerIDs: ids)
+    let data = try JSONEncoder().encode(party)
+    let decoded = try JSONDecoder().decode(Party.self, from: data)
+
+    #expect(decoded.id == party.id)
+    #expect(decoded.name == "Ironclad Company")
+    #expect(decoded.playerIDs == ids)
+  }
+
+  @Test func playerIDsOrderIsPreserved() throws {
+    let ids = (0..<5).map { _ in UUID() }
+    let party = Party(name: "Order Test", playerIDs: ids)
+    let data = try JSONEncoder().encode(party)
+    let decoded = try JSONDecoder().decode(Party.self, from: data)
+
+    #expect(decoded.playerIDs == ids)
+  }
+
+  @Test func defaultPartyHasNoPlayers() {
+    let party = Party(name: "Empty")
+    #expect(party.playerIDs.isEmpty)
+  }
+}
+
 // MARK: - DaggerheartEnvironment
 
 struct EnvironmentModelTests {
