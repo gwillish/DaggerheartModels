@@ -64,7 +64,7 @@ public final class EncounterSession: Identifiable, Hashable {
   /// `nil` for sessions created directly (tests, blank sessions).
   public let definitionID: UUID?
 
-  /// The `modifiedAt` stamp of the definition at session-creation time.
+  /// The modification date of the source definition at the time this session was created.
   /// Used by the registry to detect stale sessions. `nil` if not definition-backed.
   public let definitionSnapshotDate: Date?
 
@@ -110,6 +110,7 @@ public final class EncounterSession: Identifiable, Hashable {
     environmentSlots: [EnvironmentState] = [],
     fearPool: Int = 0,
     hopePool: Int = 0,
+    spotlightedSlotID: UUID? = nil,
     spotlightCount: Int = 0,
     gmNotes: String = "",
     definitionID: UUID? = nil,
@@ -122,7 +123,7 @@ public final class EncounterSession: Identifiable, Hashable {
     self._environmentSlots = environmentSlots
     self.fearPool = fearPool
     self.hopePool = hopePool
-    self.spotlightedSlotID = nil
+    self.spotlightedSlotID = spotlightedSlotID
     self.spotlightCount = spotlightCount
     self.gmNotes = gmNotes
     self.definitionID = definitionID
@@ -367,11 +368,11 @@ public final class EncounterSession: Identifiable, Hashable {
     var counters: [String: Int] = [:]
     let adversarySlots: [AdversaryState] = definition.adversaryIDs.compactMap { id in
       guard let adversary = compendium.adversary(id: id) else { return nil }
-      guard counts[id, default: 0] > 1 else {
+      guard (counts[id] ?? 0) > 1 else {
         return AdversaryState(from: adversary)
       }
-      counters[id, default: 0] += 1
-      let n = counters[id, default: 0]
+      let n = (counters[id] ?? 0) + 1
+      counters[id] = n
       return AdversaryState(from: adversary, customName: "\(adversary.name) \(n)")
     }
 
@@ -411,7 +412,7 @@ extension EncounterSession: @MainActor Codable {
   enum CodingKeys: String, CodingKey {
     case id, name
     case adversarySlots, playerSlots, environmentSlots
-    case fearPool, hopePool, spotlightCount, gmNotes
+    case fearPool, hopePool, spotlightedSlotID, spotlightCount, gmNotes
     case definitionID, definitionSnapshotDate
   }
 
@@ -424,6 +425,7 @@ extension EncounterSession: @MainActor Codable {
     try c.encode(_environmentSlots, forKey: .environmentSlots)
     try c.encode(fearPool, forKey: .fearPool)
     try c.encode(hopePool, forKey: .hopePool)
+    try c.encodeIfPresent(spotlightedSlotID, forKey: .spotlightedSlotID)
     try c.encode(spotlightCount, forKey: .spotlightCount)
     try c.encode(gmNotes, forKey: .gmNotes)
     try c.encodeIfPresent(definitionID, forKey: .definitionID)
@@ -439,6 +441,7 @@ extension EncounterSession: @MainActor Codable {
     let environmentSlots = try c.decode([EnvironmentState].self, forKey: .environmentSlots)
     let fearPool = try c.decode(Int.self, forKey: .fearPool)
     let hopePool = try c.decode(Int.self, forKey: .hopePool)
+    let spotlightedSlotID = try c.decodeIfPresent(UUID.self, forKey: .spotlightedSlotID)
     let spotlightCount = try c.decode(Int.self, forKey: .spotlightCount)
     let gmNotes = try c.decode(String.self, forKey: .gmNotes)
     let definitionID = try c.decodeIfPresent(UUID.self, forKey: .definitionID)
@@ -447,7 +450,8 @@ extension EncounterSession: @MainActor Codable {
       id: id, name: name,
       adversarySlots: adversarySlots, playerSlots: playerSlots,
       environmentSlots: environmentSlots,
-      fearPool: fearPool, hopePool: hopePool, spotlightCount: spotlightCount, gmNotes: gmNotes,
+      fearPool: fearPool, hopePool: hopePool,
+      spotlightedSlotID: spotlightedSlotID, spotlightCount: spotlightCount, gmNotes: gmNotes,
       definitionID: definitionID, definitionSnapshotDate: definitionSnapshotDate
     )
   }

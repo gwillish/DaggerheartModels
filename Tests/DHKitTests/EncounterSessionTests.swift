@@ -526,7 +526,7 @@ import Testing
     #expect(session.adversarySlots[2].customName == "Goblin 3")
   }
 
-  @Test func mixedAdversaries_onlyDuplicatesGetNumbered() {
+  @Test func mixedAdversariesOnlyDuplicatesAreNumbered() {
     let comp = Compendium()
     comp.addAdversary(
       Adversary(
@@ -562,11 +562,10 @@ import Testing
 @MainActor struct EncounterSessionCodableTests {
 
   @Test func sessionCodableRoundTrip() throws {
+    let adversarySlot = AdversaryState(adversaryID: "ironguard-soldier", maxHP: 6, maxStress: 3)
     let session = EncounterSession(
       name: "Bandit Ambush",
-      adversarySlots: [
-        AdversaryState(adversaryID: "ironguard-soldier", maxHP: 6, maxStress: 3)
-      ],
+      adversarySlots: [adversarySlot],
       playerSlots: [
         PlayerState(
           name: "Aldric", maxHP: 6, maxStress: 6,
@@ -575,6 +574,7 @@ import Testing
       ],
       fearPool: 2,
       hopePool: 3,
+      spotlightedSlotID: adversarySlot.id,
       spotlightCount: 1,
       gmNotes: "Remember the secret door.",
       definitionID: UUID(),
@@ -592,6 +592,7 @@ import Testing
     #expect(decoded.playerSlots[0].name == "Aldric")
     #expect(decoded.fearPool == 2)
     #expect(decoded.hopePool == 3)
+    #expect(decoded.spotlightedSlotID == adversarySlot.id)
     #expect(decoded.spotlightCount == 1)
     #expect(decoded.gmNotes == "Remember the secret door.")
     #expect(decoded.definitionID == session.definitionID)
