@@ -34,8 +34,10 @@ import Observation
 @MainActor
 @Observable
 public final class SessionRegistry {
+  /// All live sessions currently held by this registry, keyed by definition ID.
   public private(set) var sessions: [UUID: EncounterSession] = [:]
 
+  /// Creates an empty session registry.
   public init() {}
 
   /// Return the existing session for `definition.id`, or create and store a new one.

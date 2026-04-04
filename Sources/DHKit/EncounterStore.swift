@@ -27,8 +27,11 @@ import Observation
 
 /// Errors thrown by ``EncounterStore`` operations.
 nonisolated public enum EncounterStoreError: Error, LocalizedError, Sendable {
+  /// No definition with the given ID exists in the store.
   case notFound(UUID)
+  /// Writing the definition's JSON file to disk failed.
   case saveFailed(UUID, String)
+  /// Deleting the definition's JSON file from disk failed.
   case deleteFailed(UUID, String)
 
   public var errorDescription: String? {
@@ -93,6 +96,11 @@ public final class EncounterStore {
 
   // MARK: - Init
 
+  /// Creates a store backed by the given directory.
+  ///
+  /// The directory is not created automatically; call ``load()`` to read existing
+  /// files. Use ``defaultDirectory()`` to resolve the preferred iCloud or local
+  /// path at runtime.
   public init(directory: URL) {
     self.directory = directory
   }

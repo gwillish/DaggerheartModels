@@ -21,12 +21,19 @@ import Foundation
 nonisolated public struct EnvironmentState: EncounterParticipant, Codable, Sendable, Equatable,
   Hashable
 {
+  /// Stable slot identifier unique within the session.
   public let id: UUID
   /// The slug identifying this environment in the ``Compendium``.
   public let environmentID: String
   /// Whether this environment element is currently active/visible to players.
   public let isActive: Bool
 
+  /// Creates an environment slot.
+  ///
+  /// - Parameters:
+  ///   - id: Slot identifier; defaults to a new UUID.
+  ///   - environmentID: Catalog slug for the source environment.
+  ///   - isActive: Whether the element is initially active; defaults to `true`.
   public init(
     id: UUID = UUID(),
     environmentID: String,

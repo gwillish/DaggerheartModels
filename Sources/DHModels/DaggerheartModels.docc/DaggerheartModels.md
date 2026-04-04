@@ -27,6 +27,11 @@ ecosystem.
 
 - ``DaggerheartEnvironment``
 
+### Players and Parties
+
+- ``Player``
+- ``Party``
+
 ### Encounters
 
 - ``EncounterDefinition``

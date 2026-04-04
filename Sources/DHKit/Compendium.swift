@@ -26,7 +26,9 @@ import Observation
 
 /// Errors that can occur while loading compendium data.
 nonisolated public enum CompendiumError: Error, LocalizedError {
+  /// The specified bundle resource could not be located.
   case fileNotFound(resourceName: String)
+  /// A resource was found but JSON decoding failed.
   case decodingFailed(resourceName: String, underlying: Error)
 
   public var errorDescription: String? {

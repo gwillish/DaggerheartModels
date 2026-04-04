@@ -25,18 +25,27 @@ import Foundation
 /// Tracks combat-relevant PC stats the GM needs to resolve hits and
 /// track health during play. The full character sheet remains with the player.
 nonisolated public struct PlayerState: CombatParticipant, Codable, Sendable, Equatable, Hashable {
+  /// Stable slot identifier unique within the session.
   public let id: UUID
+  /// The player character's name.
   public let name: String
 
   // MARK: Hit Points
+
+  /// Maximum hit points.
   public let maxHP: Int
+  /// Current HP; clamped to `0...maxHP` by ``EncounterSession``.
   public let currentHP: Int
 
   // MARK: Stress
+
+  /// Maximum stress.
   public let maxStress: Int
+  /// Current Stress; clamped to `0...maxStress` by ``EncounterSession``.
   public let currentStress: Int
 
   // MARK: Defense
+
   /// The DC for all rolls made against this PC.
   public let evasion: Int
   /// Damage at or above this triggers a Major hit (mark 2 HP).
@@ -45,16 +54,37 @@ nonisolated public struct PlayerState: CombatParticipant, Codable, Sendable, Equ
   public let thresholdSevere: Int
 
   // MARK: Armor
+
   /// Total Armor Score (number of Armor Slots available).
   public let armorSlots: Int
   /// Remaining unused Armor Slots.
   public let currentArmorSlots: Int
 
   // MARK: Conditions
+
+  /// Active conditions on this player slot.
   public let conditions: Set<Condition>
 
   // MARK: - Init
 
+  /// Creates a player slot with explicit stat values.
+  ///
+  /// In most cases prefer creating a ``PlayerConfig`` and letting
+  /// ``EncounterSession/make(from:using:)`` build the slot automatically.
+  ///
+  /// - Parameters:
+  ///   - id: Slot identifier; defaults to a new UUID.
+  ///   - name: The player character's name.
+  ///   - maxHP: Maximum hit points.
+  ///   - currentHP: Starting HP; defaults to `maxHP`.
+  ///   - maxStress: Maximum stress.
+  ///   - currentStress: Starting Stress; defaults to `0`.
+  ///   - evasion: The DC for rolls made against this PC.
+  ///   - thresholdMajor: Damage threshold for a Major hit.
+  ///   - thresholdSevere: Damage threshold for a Severe hit.
+  ///   - armorSlots: Total Armor Score.
+  ///   - currentArmorSlots: Remaining Armor Slots; defaults to `armorSlots`.
+  ///   - conditions: Initial condition set; defaults to empty.
   public init(
     id: UUID = UUID(),
     name: String,

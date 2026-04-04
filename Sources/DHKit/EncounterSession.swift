@@ -57,7 +57,10 @@ public final class EncounterSession: Identifiable, Hashable {
   private let logger = Logger(label: "EncounterSession")
 
   // MARK: Identity
+
+  /// Stable session identifier.
   public let id: UUID
+  /// The display name for this encounter.
   public var name: String
 
   /// The ID of the ``EncounterDefinition`` this session was created from.
@@ -98,10 +101,16 @@ public final class EncounterSession: Identifiable, Hashable {
   public var spotlightCount: Int
 
   // MARK: Notes
+
+  /// Freeform notes visible to the GM during the encounter.
   public var gmNotes: String
 
   // MARK: - Init
 
+  /// Creates an encounter session with the given initial state.
+  ///
+  /// Prefer ``make(from:using:)`` for sessions backed by a saved definition.
+  /// Use this initializer for blank or test sessions.
   public init(
     id: UUID = UUID(),
     name: String,
@@ -316,18 +325,22 @@ public final class EncounterSession: Identifiable, Hashable {
 
   // MARK: - Fear & Hope
 
+  /// Increase the GM's Fear pool by `amount`.
   public func incrementFear(by amount: Int = 1) {
     fearPool += amount
   }
 
+  /// Spend from the GM's Fear pool, clamping to zero.
   public func spendFear(by amount: Int = 1) {
     fearPool = max(0, fearPool - amount)
   }
 
+  /// Increase the party's Hope pool by `amount`.
   public func incrementHope(by amount: Int = 1) {
     hopePool += amount
   }
 
+  /// Spend from the party's Hope pool, clamping to zero.
   public func spendHope(by amount: Int = 1) {
     hopePool = max(0, hopePool - amount)
   }

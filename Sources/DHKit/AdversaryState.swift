@@ -26,6 +26,7 @@ import Foundation
 /// which replaces values wholesale (copy-with-update pattern).
 nonisolated public struct AdversaryState: CombatParticipant, Codable, Sendable, Equatable, Hashable
 {
+  /// Stable slot identifier unique within the session.
   public let id: UUID
   /// The slug that identifies this adversary in the ``Compendium``.
   public let adversaryID: String
@@ -34,17 +35,39 @@ nonisolated public struct AdversaryState: CombatParticipant, Codable, Sendable, 
   public let customName: String?
 
   // MARK: Stat Snapshot (from catalog at creation time)
+
+  /// Maximum HP snapshotted from the catalog entry at slot creation time.
   public let maxHP: Int
+  /// Maximum Stress snapshotted from the catalog entry at slot creation time.
   public let maxStress: Int
 
   // MARK: Tracked Stats
+
+  /// Current HP; clamped to `0...maxHP` by ``EncounterSession``.
   public let currentHP: Int
+  /// Current Stress; clamped to `0...maxStress` by ``EncounterSession``.
   public let currentStress: Int
+  /// `true` once HP reaches 0.
   public let isDefeated: Bool
+  /// Active conditions on this adversary slot.
   public let conditions: Set<Condition>
 
   // MARK: - Init
 
+  /// Creates an adversary slot with explicit stat values.
+  ///
+  /// Prefer ``init(from:customName:)`` when constructing from a catalog entry.
+  ///
+  /// - Parameters:
+  ///   - id: Slot identifier; defaults to a new UUID.
+  ///   - adversaryID: Catalog slug for the source adversary.
+  ///   - customName: Optional display name override.
+  ///   - maxHP: Maximum HP (snapshotted from catalog).
+  ///   - maxStress: Maximum Stress (snapshotted from catalog).
+  ///   - currentHP: Starting HP; defaults to `maxHP`.
+  ///   - currentStress: Starting Stress; defaults to `0`.
+  ///   - isDefeated: Whether the slot starts defeated; defaults to `false`.
+  ///   - conditions: Initial condition set; defaults to empty.
   public init(
     id: UUID = UUID(),
     adversaryID: String,
