@@ -97,6 +97,53 @@ nonisolated public enum DifficultyBudget {
     return Rating(budget: budget, cost: cost, remaining: budget - cost)
   }
 
+  // MARK: - Tier Utilities
+
+  /// Returns the Daggerheart tier (1–4) for a given character level (1–10).
+  ///
+  /// | Level | Tier |
+  /// |-------|------|
+  /// | 1     | 1    |
+  /// | 2–4   | 2    |
+  /// | 5–7   | 3    |
+  /// | 8–10  | 4    |
+  ///
+  /// Per SRD "Building Balanced Encounters".
+  public static func tier(forLevel level: Int) -> Int {
+    switch level {
+    case ...1: return 1
+    case 2...4: return 2
+    case 5...7: return 3
+    default: return 4
+    }
+  }
+
+  /// Returns the party tier derived from the median character level.
+  ///
+  /// The median level is computed, then rounded up (ceiling) before mapping
+  /// to tier. When the median straddles a tier boundary the party is treated
+  /// as the higher tier — giving slightly more adversary budget latitude.
+  /// Empty input returns Tier 1 as a safe default.
+  ///
+  /// Examples:
+  /// - `[1]` → median 1 → T1
+  /// - `[2, 3, 4, 5]` → median 3.5 → ceil 4 → T2
+  /// - `[4, 5]` → median 4.5 → ceil 5 → T3
+  /// - `[7, 8, 9]` → median 8 → T4
+  public static func partyTier(levels: [Int]) -> Int {
+    guard !levels.isEmpty else { return 1 }
+    let sorted = levels.sorted()
+    let count = sorted.count
+    let medianLevel: Double
+    if count % 2 == 1 {
+      medianLevel = Double(sorted[count / 2])
+    } else {
+      medianLevel = (Double(sorted[count / 2 - 1]) + Double(sorted[count / 2])) / 2.0
+    }
+    let ceiledLevel = Int(ceil(medianLevel))
+    return tier(forLevel: ceiledLevel)
+  }
+
   // MARK: - Adjustment Suggestions
 
   /// Predefined budget adjustments from the SRD.
@@ -141,14 +188,23 @@ nonisolated public enum DifficultyBudget {
 
   /// Determine which SRD adjustments apply automatically based on the roster.
   ///
-  /// Only returns adjustments that can be mechanically detected:
-  /// - `.multipleSolos` if 2+ Solo types
-  /// - `.noBigThreats` if no Bruiser, Horde, Leader, or Solo types
+  /// Mechanically detected adjustments:
+  /// - `.multipleSolos` — 2 or more Solo types in the roster.
+  /// - `.noBigThreats` — no Bruiser, Horde, Leader, or Solo types, and the roster is non-empty.
+  /// - `.lowerTierAdversary` — `partyTier` is non-nil and at least one adversary has a
+  ///   known tier (non-zero entry in `adversaryTiers`) strictly less than `partyTier`.
   ///
-  /// GM-discretionary adjustments (easier/harder fight, boosted damage,
-  /// lower tier) must be toggled manually in the UI.
+  /// GM-discretionary adjustments (easier/harder fight, boosted damage) are never
+  /// auto-detected and must be toggled manually.
+  ///
+  /// - Parameters:
+  ///   - adversaryTypes: The types of all adversaries in the encounter.
+  ///   - adversaryTiers: Tiers parallel to `adversaryTypes`; use `0` for unknown.
+  ///   - partyTier: The party's derived tier; pass `nil` to skip lower-tier detection.
   public static func suggestedAdjustments(
-    adversaryTypes: [AdversaryType]
+    adversaryTypes: [AdversaryType],
+    adversaryTiers: [Int] = [],
+    partyTier: Int? = nil
   ) -> Set<Adjustment> {
     var result: Set<Adjustment> = []
 
@@ -161,6 +217,13 @@ nonisolated public enum DifficultyBudget {
     let hasBigThreat = adversaryTypes.contains { bigThreatTypes.contains($0) }
     if !hasBigThreat && !adversaryTypes.isEmpty {
       result.insert(.noBigThreats)
+    }
+
+    if let pt = partyTier {
+      let hasLowerTier = adversaryTiers.contains { $0 > 0 && $0 < pt }
+      if hasLowerTier {
+        result.insert(.lowerTierAdversary)
+      }
     }
 
     return result

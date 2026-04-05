@@ -26,6 +26,8 @@ nonisolated public struct Player: Codable, Sendable, Equatable, Hashable, Identi
   public let id: UUID
   /// The player character's name.
   public var name: String
+  /// The player character's level (1–10).
+  public var level: Int
   /// Maximum hit points for this character.
   public var maxHP: Int
   /// Maximum stress for this character.
@@ -44,6 +46,7 @@ nonisolated public struct Player: Codable, Sendable, Equatable, Hashable, Identi
   /// - Parameters:
   ///   - id: Stable identifier; defaults to a new UUID.
   ///   - name: The player character's name.
+  ///   - level: The character's level (1–10); defaults to `1`.
   ///   - maxHP: Maximum hit points.
   ///   - maxStress: Maximum stress.
   ///   - evasion: The DC for rolls made against this PC.
@@ -53,6 +56,7 @@ nonisolated public struct Player: Codable, Sendable, Equatable, Hashable, Identi
   public init(
     id: UUID = UUID(),
     name: String,
+    level: Int = 1,
     maxHP: Int,
     maxStress: Int,
     evasion: Int,
@@ -62,6 +66,7 @@ nonisolated public struct Player: Codable, Sendable, Equatable, Hashable, Identi
   ) {
     self.id = id
     self.name = name
+    self.level = level
     self.maxHP = maxHP
     self.maxStress = maxStress
     self.evasion = evasion
@@ -70,12 +75,26 @@ nonisolated public struct Player: Codable, Sendable, Equatable, Hashable, Identi
     self.armorSlots = armorSlots
   }
 
+  public init(from decoder: any Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    id = try container.decode(UUID.self, forKey: .id)
+    name = try container.decode(String.self, forKey: .name)
+    level = try container.decodeIfPresent(Int.self, forKey: .level) ?? 1
+    maxHP = try container.decode(Int.self, forKey: .maxHP)
+    maxStress = try container.decode(Int.self, forKey: .maxStress)
+    evasion = try container.decode(Int.self, forKey: .evasion)
+    thresholdMajor = try container.decode(Int.self, forKey: .thresholdMajor)
+    thresholdSevere = try container.decode(Int.self, forKey: .thresholdSevere)
+    armorSlots = try container.decode(Int.self, forKey: .armorSlots)
+  }
+
   /// Snapshots this player's current stats into a ``PlayerConfig`` for use
   /// in an ``EncounterDefinition`` or session creation.
   public func asConfig() -> PlayerConfig {
     PlayerConfig(
       id: id,
       name: name,
+      level: level,
       maxHP: maxHP,
       maxStress: maxStress,
       evasion: evasion,
