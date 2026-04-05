@@ -220,7 +220,9 @@ nonisolated public enum DifficultyBudget {
     }
 
     if let pt = partyTier {
-      let hasLowerTier = adversaryTiers.contains { $0 > 0 && $0 < pt }
+      let hasLowerTier = zip(adversaryTypes, adversaryTiers).contains { _, tier in
+        tier > 0 && tier < pt
+      }
       if hasLowerTier {
         result.insert(.lowerTierAdversary)
       }

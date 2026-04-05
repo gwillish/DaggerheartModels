@@ -308,7 +308,8 @@ struct EncounterDefinitionTests {
   }
 
   @Test func playerConfigLevelDefaultsToOneWhenAbsentInJSON() throws {
-    let json = """
+    let json = try #require(
+      """
       {
         "id": "00000000-0000-0000-0000-000000000002",
         "name": "Legacy",
@@ -319,7 +320,7 @@ struct EncounterDefinitionTests {
         "thresholdSevere": 15,
         "armorSlots": 3
       }
-      """.data(using: .utf8)!
+      """.data(using: .utf8))
     let decoded = try JSONDecoder().decode(PlayerConfig.self, from: json)
     #expect(decoded.level == 1)
   }
@@ -461,26 +462,9 @@ struct DifficultyBudgetTests {
 
   // MARK: Tier Utilities
 
-  @Test func tierForLevel1IsT1() {
-    #expect(DifficultyBudget.tier(forLevel: 1) == 1)
-  }
-
-  @Test func tierForLevels2Through4IsT2() {
-    for level in 2...4 {
-      #expect(DifficultyBudget.tier(forLevel: level) == 2, "Expected level \(level) → T2")
-    }
-  }
-
-  @Test func tierForLevels5Through7IsT3() {
-    for level in 5...7 {
-      #expect(DifficultyBudget.tier(forLevel: level) == 3, "Expected level \(level) → T3")
-    }
-  }
-
-  @Test func tierForLevels8Through10IsT4() {
-    for level in 8...10 {
-      #expect(DifficultyBudget.tier(forLevel: level) == 4, "Expected level \(level) → T4")
-    }
+  @Test(arguments: zip(1...10, [1, 2, 2, 2, 3, 3, 3, 4, 4, 4]))
+  func tierForLevel(level: Int, expectedTier: Int) {
+    #expect(DifficultyBudget.tier(forLevel: level) == expectedTier)
   }
 
   @Test func partyTierSinglePlayer() {
@@ -538,6 +522,17 @@ struct DifficultyBudgetTests {
     let adjustments = DifficultyBudget.suggestedAdjustments(
       adversaryTypes: [.standard],
       adversaryTiers: [0],
+      partyTier: 3
+    )
+    #expect(!adjustments.contains(.lowerTierAdversary))
+  }
+
+  @Test func lowerTierAdversaryNotDetectedWithEmptyRoster() {
+    // adversaryTiers has a lower-tier entry but adversaryTypes is empty —
+    // zip silences the dangling tier, so no adjustment should fire.
+    let adjustments = DifficultyBudget.suggestedAdjustments(
+      adversaryTypes: [],
+      adversaryTiers: [1],
       partyTier: 3
     )
     #expect(!adjustments.contains(.lowerTierAdversary))
@@ -601,7 +596,8 @@ struct PlayerTests {
   }
 
   @Test func playerLevelDefaultsToOneWhenAbsentInJSON() throws {
-    let json = """
+    let json = try #require(
+      """
       {
         "id": "00000000-0000-0000-0000-000000000001",
         "name": "Legacy",
@@ -612,7 +608,7 @@ struct PlayerTests {
         "thresholdSevere": 15,
         "armorSlots": 3
       }
-      """.data(using: .utf8)!
+      """.data(using: .utf8))
     let decoded = try JSONDecoder().decode(Player.self, from: json)
     #expect(decoded.level == 1)
   }
