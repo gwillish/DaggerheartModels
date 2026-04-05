@@ -31,6 +31,8 @@ import Foundation
 nonisolated public struct PlayerConfig: Codable, Sendable, Equatable, Hashable, Identifiable {
   public let id: UUID
   public let name: String
+  /// The player character's level (1–10). Defaults to `1` when absent in JSON.
+  public let level: Int
   public let maxHP: Int
   public let maxStress: Int
   public let evasion: Int
@@ -41,6 +43,7 @@ nonisolated public struct PlayerConfig: Codable, Sendable, Equatable, Hashable, 
   public init(
     id: UUID = UUID(),
     name: String,
+    level: Int = 1,
     maxHP: Int,
     maxStress: Int,
     evasion: Int,
@@ -50,12 +53,26 @@ nonisolated public struct PlayerConfig: Codable, Sendable, Equatable, Hashable, 
   ) {
     self.id = id
     self.name = name
+    self.level = level
     self.maxHP = maxHP
     self.maxStress = maxStress
     self.evasion = evasion
     self.thresholdMajor = thresholdMajor
     self.thresholdSevere = thresholdSevere
     self.armorSlots = armorSlots
+  }
+
+  public init(from decoder: any Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    id = try container.decode(UUID.self, forKey: .id)
+    name = try container.decode(String.self, forKey: .name)
+    level = try container.decodeIfPresent(Int.self, forKey: .level) ?? 1
+    maxHP = try container.decode(Int.self, forKey: .maxHP)
+    maxStress = try container.decode(Int.self, forKey: .maxStress)
+    evasion = try container.decode(Int.self, forKey: .evasion)
+    thresholdMajor = try container.decode(Int.self, forKey: .thresholdMajor)
+    thresholdSevere = try container.decode(Int.self, forKey: .thresholdSevere)
+    armorSlots = try container.decode(Int.self, forKey: .armorSlots)
   }
 }
 

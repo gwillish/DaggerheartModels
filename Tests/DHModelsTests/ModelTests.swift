@@ -294,16 +294,35 @@ struct EncounterDefinitionTests {
 
   @Test func playerConfigCodableRoundTrip() throws {
     let config = PlayerConfig(
-      name: "Sera", maxHP: 8, maxStress: 6,
+      name: "Sera", level: 3, maxHP: 8, maxStress: 6,
       evasion: 14, thresholdMajor: 10, thresholdSevere: 18, armorSlots: 4
     )
     let data = try JSONEncoder().encode(config)
     let decoded = try JSONDecoder().decode(PlayerConfig.self, from: data)
 
     #expect(decoded.name == "Sera")
+    #expect(decoded.level == 3)
     #expect(decoded.maxHP == 8)
     #expect(decoded.evasion == 14)
     #expect(decoded.armorSlots == 4)
+  }
+
+  @Test func playerConfigLevelDefaultsToOneWhenAbsentInJSON() throws {
+    let json = try #require(
+      """
+      {
+        "id": "00000000-0000-0000-0000-000000000002",
+        "name": "Legacy",
+        "maxHP": 6,
+        "maxStress": 6,
+        "evasion": 12,
+        "thresholdMajor": 8,
+        "thresholdSevere": 15,
+        "armorSlots": 3
+      }
+      """.data(using: .utf8))
+    let decoded = try JSONDecoder().decode(PlayerConfig.self, from: json)
+    #expect(decoded.level == 1)
   }
 }
 
@@ -440,6 +459,90 @@ struct DifficultyBudgetTests {
     #expect(DifficultyBudget.Adjustment.noBigThreats.pointValue == 1)
     #expect(DifficultyBudget.Adjustment.harderFight.pointValue == 2)
   }
+
+  // MARK: Tier Utilities
+
+  @Test(arguments: zip(1...10, [1, 2, 2, 2, 3, 3, 3, 4, 4, 4]))
+  func tierForLevel(level: Int, expectedTier: Int) {
+    #expect(DifficultyBudget.tier(forLevel: level) == expectedTier)
+  }
+
+  @Test func partyTierSinglePlayer() {
+    #expect(DifficultyBudget.partyTier(levels: [1]) == 1)
+    #expect(DifficultyBudget.partyTier(levels: [5]) == 3)
+    #expect(DifficultyBudget.partyTier(levels: [9]) == 4)
+  }
+
+  @Test func partyTierEmptyIsT1() {
+    #expect(DifficultyBudget.partyTier(levels: []) == 1)
+  }
+
+  @Test func partyTierMedianBoundaryRoundsUp() {
+    // [2,3,4,5] → median 3.5 → ceil 4 → T2
+    #expect(DifficultyBudget.partyTier(levels: [2, 3, 4, 5]) == 2)
+    // [4,5] → median 4.5 → ceil 5 → T3
+    #expect(DifficultyBudget.partyTier(levels: [4, 5]) == 3)
+  }
+
+  @Test func partyTierOddCount() {
+    // [7,8,9] → median 8 → T4
+    #expect(DifficultyBudget.partyTier(levels: [7, 8, 9]) == 4)
+  }
+
+  // MARK: lowerTierAdversary auto-detection
+
+  @Test func lowerTierAdversaryDetectedWhenPresent() {
+    let adjustments = DifficultyBudget.suggestedAdjustments(
+      adversaryTypes: [.standard, .minion],
+      adversaryTiers: [3, 1],
+      partyTier: 3
+    )
+    #expect(adjustments.contains(.lowerTierAdversary))
+  }
+
+  @Test func lowerTierAdversaryNotDetectedWhenAllTiersMatch() {
+    let adjustments = DifficultyBudget.suggestedAdjustments(
+      adversaryTypes: [.standard, .minion],
+      adversaryTiers: [3, 3],
+      partyTier: 3
+    )
+    #expect(!adjustments.contains(.lowerTierAdversary))
+  }
+
+  @Test func lowerTierAdversaryNotDetectedWithoutPartyTier() {
+    let adjustments = DifficultyBudget.suggestedAdjustments(
+      adversaryTypes: [.standard],
+      adversaryTiers: [1],
+      partyTier: nil
+    )
+    #expect(!adjustments.contains(.lowerTierAdversary))
+  }
+
+  @Test func lowerTierAdversaryIgnoresUnknownTierZero() {
+    let adjustments = DifficultyBudget.suggestedAdjustments(
+      adversaryTypes: [.standard],
+      adversaryTiers: [0],
+      partyTier: 3
+    )
+    #expect(!adjustments.contains(.lowerTierAdversary))
+  }
+
+  @Test func lowerTierAdversaryNotDetectedWithEmptyRoster() {
+    // adversaryTiers has a lower-tier entry but adversaryTypes is empty —
+    // zip silences the dangling tier, so no adjustment should fire.
+    let adjustments = DifficultyBudget.suggestedAdjustments(
+      adversaryTypes: [],
+      adversaryTiers: [1],
+      partyTier: 3
+    )
+    #expect(!adjustments.contains(.lowerTierAdversary))
+  }
+
+  @Test func suggestedAdjustmentsBackwardCompatible() {
+    // Calling with no tier params must still detect multipleSolos / noBigThreats.
+    let adjustments = DifficultyBudget.suggestedAdjustments(adversaryTypes: [.solo, .solo])
+    #expect(adjustments.contains(.multipleSolos))
+  }
 }
 
 // MARK: - Player
@@ -474,15 +577,52 @@ struct PlayerTests {
     #expect(decoded.armorSlots == 4)
   }
 
+  @Test func playerDefaultLevelIsOne() {
+    let player = Player(
+      name: "Aldric", maxHP: 6, maxStress: 6,
+      evasion: 12, thresholdMajor: 8, thresholdSevere: 15, armorSlots: 3
+    )
+    #expect(player.level == 1)
+  }
+
+  @Test func playerLevelRoundTrip() throws {
+    let player = Player(
+      name: "Sera", level: 5, maxHP: 8, maxStress: 6,
+      evasion: 14, thresholdMajor: 10, thresholdSevere: 18, armorSlots: 4
+    )
+    let data = try JSONEncoder().encode(player)
+    let decoded = try JSONDecoder().decode(Player.self, from: data)
+    #expect(decoded.level == 5)
+  }
+
+  @Test func playerLevelDefaultsToOneWhenAbsentInJSON() throws {
+    let json = try #require(
+      """
+      {
+        "id": "00000000-0000-0000-0000-000000000001",
+        "name": "Legacy",
+        "maxHP": 6,
+        "maxStress": 6,
+        "evasion": 12,
+        "thresholdMajor": 8,
+        "thresholdSevere": 15,
+        "armorSlots": 3
+      }
+      """.data(using: .utf8))
+    let decoded = try JSONDecoder().decode(Player.self, from: json)
+    #expect(decoded.level == 1)
+  }
+
   @Test func asConfigPreservesAllFields() {
     let player = Player(
-      name: "Torven", maxHP: 10, maxStress: 5,
+      name: "Torven", level: 4, maxHP: 10, maxStress: 5,
       evasion: 11, thresholdMajor: 7, thresholdSevere: 14, armorSlots: 2
     )
     let config = player.asConfig()
 
     #expect(config.id == player.id)
     #expect(config.name == player.name)
+    #expect(config.level == player.level)
     #expect(config.maxHP == player.maxHP)
     #expect(config.maxStress == player.maxStress)
     #expect(config.evasion == player.evasion)
