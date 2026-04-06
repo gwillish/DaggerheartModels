@@ -45,3 +45,9 @@ ecosystem.
 - ``ContentSource``
 - ``ContentFingerprint``
 - ``ContentStoreError``
+
+### Content Pack Guides
+
+- <doc:DHPackFormat>
+- <doc:AuthoringAPack>
+- <doc:SharingAndHostingPacks>
