@@ -6,6 +6,12 @@ Two targets: `DHModels` (Linux-safe value types) and `DHKit`
 
 ---
 
+## Project Context
+
+This is a Swift project using SwiftPM. Key repos: DHModels (Swift package), DHKit, and a SwiftUI app. The project targets macOS and Linux (CI). Be aware of platform differences — Linux lacks Foundation.Bundle, and MemberImportVisibility affects imports differently.
+
+---
+
 ## Package structure
 
 ```
