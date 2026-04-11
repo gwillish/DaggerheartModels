@@ -157,6 +157,33 @@ public final class EncounterSession: Identifiable, Hashable {
     if spotlightedSlotID == id { spotlightedSlotID = nil }
   }
 
+  /// Rename an adversary slot. Returns `true` on success.
+  ///
+  /// Returns `false` if `name` (after trimming whitespace) is empty, if the
+  /// slot ID is not found, or if the trimmed name is already used as the
+  /// `customName` of another slot in this session.
+  ///
+  /// - Parameters:
+  ///   - id: The slot to rename.
+  ///   - name: The new display name. Leading and trailing whitespace is stripped.
+  @discardableResult
+  public func renameAdversary(id: UUID, name: String) -> Bool {
+    let trimmed = name.trimmingCharacters(in: .whitespaces)
+    guard !trimmed.isEmpty else { return false }
+    let isDuplicate = _adversarySlots.contains { $0.id != id && $0.customName == trimmed }
+    guard !isDuplicate else { return false }
+    guard let i = _adversarySlots.firstIndex(where: { $0.id == id }) else { return false }
+    let s = _adversarySlots[i]
+    _adversarySlots[i] = AdversaryState(
+      id: s.id, adversaryID: s.adversaryID, customName: trimmed,
+      maxHP: s.maxHP, maxStress: s.maxStress,
+      currentHP: s.currentHP, currentStress: s.currentStress,
+      isDefeated: s.isDefeated, conditions: s.conditions
+    )
+    logger.debug("Slot \(id) renamed to \(trimmed)")
+    return true
+  }
+
   // MARK: - Player Management
 
   /// Add a player slot to the encounter.
