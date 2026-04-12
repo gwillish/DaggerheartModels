@@ -7,7 +7,7 @@
 //  and EncounterStore.
 //
 //  Sessions are retained for the lifetime of the app process.
-//  Cross-launch persistence is a future enhancement.
+//  Use insert(_:) to restore pre-decoded sessions at startup.
 //
 
 import DHModels
@@ -49,6 +49,14 @@ public final class SessionRegistry {
     let newSession = EncounterSession.make(from: definition, using: compendium)
     sessions[definition.id] = newSession
     return newSession
+  }
+
+  /// Restore a pre-decoded session (e.g. loaded from disk at startup).
+  /// Does not overwrite an existing live session for the same definition ID.
+  public func insert(_ session: EncounterSession) {
+    guard let defID = session.definitionID else { return }
+    guard sessions[defID] == nil else { return }
+    sessions[defID] = session
   }
 
   /// Remove the stored session so the next call to ``session(for:definition:compendium:)``
