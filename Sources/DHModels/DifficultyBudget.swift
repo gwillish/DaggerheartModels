@@ -86,12 +86,13 @@ nonisolated public enum DifficultyBudget {
   ///   - adversaryTypes: The types of all adversaries in the encounter.
   ///   - playerCount: Number of player characters.
   ///   - budgetAdjustment: Manual adjustment to the base budget (from ``Adjustment`` point values).
-  /// - Returns: A ``Rating`` with budget, cost, and remaining points.
+  /// - Returns: A ``Rating`` with budget, cost, and remaining points, or `nil` when `playerCount` is zero.
   public static func rating(
     adversaryTypes: [AdversaryType],
     playerCount: Int,
     budgetAdjustment: Int = 0
-  ) -> Rating {
+  ) -> Rating? {
+    guard playerCount > 0 else { return nil }
     let budget = baseBudget(playerCount: playerCount) + budgetAdjustment
     let cost = totalCost(for: adversaryTypes)
     return Rating(budget: budget, cost: cost, remaining: budget - cost)
@@ -229,5 +230,23 @@ nonisolated public enum DifficultyBudget {
     }
 
     return result
+  }
+}
+
+extension DifficultyBudget.Rating {
+  /// Human-readable difficulty description based on `remaining` (budget − cost).
+  ///
+  /// Positive values indicate unspent budget; negative values indicate the
+  /// roster exceeds the recommended budget. Thresholds match those in
+  /// `DifficultyAssessorView` in the Encounter app.
+  public var label: String {
+    switch remaining {
+    case 4...: return "Too Easy"
+    case 1...3: return "Well Matched"
+    case 0: return "On Budget"
+    case -3...(-1): return "Challenging"
+    case -6...(-4): return "Dangerous"
+    default: return "Likely TPK"
+    }
   }
 }

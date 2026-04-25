@@ -385,35 +385,75 @@ struct DifficultyBudgetTests {
 
   // MARK: Rating
 
-  @Test func ratingWithinBudgetIsBalanced() {
-    let rating = DifficultyBudget.rating(
-      adversaryTypes: [.standard, .standard, .minion],
-      playerCount: 4
-    )
+  @Test func ratingWithinBudgetIsBalanced() throws {
+    let rating = try #require(
+      DifficultyBudget.rating(
+        adversaryTypes: [.standard, .standard, .minion],
+        playerCount: 4
+      ))
     #expect(rating.cost == 5)
     #expect(rating.budget == 14)
     #expect(rating.remaining == 9)
   }
 
-  @Test func ratingOverBudgetShowsNegativeRemaining() {
-    let rating = DifficultyBudget.rating(
-      adversaryTypes: [.solo, .solo, .bruiser],
-      playerCount: 3
-    )
+  @Test func ratingOverBudgetShowsNegativeRemaining() throws {
+    let rating = try #require(
+      DifficultyBudget.rating(
+        adversaryTypes: [.solo, .solo, .bruiser],
+        playerCount: 3
+      ))
     #expect(rating.cost == 14)
     #expect(rating.budget == 11)
     #expect(rating.remaining == -3)
   }
 
-  @Test func ratingWithBudgetAdjustment() {
-    let rating = DifficultyBudget.rating(
-      adversaryTypes: [.standard],
-      playerCount: 4,
-      budgetAdjustment: -2
-    )
+  @Test func ratingWithBudgetAdjustment() throws {
+    let rating = try #require(
+      DifficultyBudget.rating(
+        adversaryTypes: [.standard],
+        playerCount: 4,
+        budgetAdjustment: -2
+      ))
     #expect(rating.budget == 12)
     #expect(rating.cost == 2)
     #expect(rating.remaining == 10)
+  }
+
+  @Test func ratingReturnsNilForZeroPlayers() {
+    #expect(DifficultyBudget.rating(adversaryTypes: [.standard], playerCount: 0) == nil)
+  }
+
+  // MARK: Rating.label
+
+  @Test func labelTooEasy() {
+    // lower boundary (4) and a value well above
+    #expect(DifficultyBudget.Rating(budget: 14, cost: 10, remaining: 4).label == "Too Easy")
+    #expect(DifficultyBudget.Rating(budget: 14, cost: 4, remaining: 10).label == "Too Easy")
+  }
+
+  @Test func labelWellMatched() {
+    #expect(DifficultyBudget.Rating(budget: 14, cost: 11, remaining: 3).label == "Well Matched")
+    #expect(DifficultyBudget.Rating(budget: 14, cost: 13, remaining: 1).label == "Well Matched")
+  }
+
+  @Test func labelOnBudget() {
+    #expect(DifficultyBudget.Rating(budget: 14, cost: 14, remaining: 0).label == "On Budget")
+  }
+
+  @Test func labelChallenging() {
+    #expect(DifficultyBudget.Rating(budget: 14, cost: 15, remaining: -1).label == "Challenging")
+    #expect(DifficultyBudget.Rating(budget: 14, cost: 17, remaining: -3).label == "Challenging")
+  }
+
+  @Test func labelDangerous() {
+    #expect(DifficultyBudget.Rating(budget: 14, cost: 18, remaining: -4).label == "Dangerous")
+    #expect(DifficultyBudget.Rating(budget: 14, cost: 20, remaining: -6).label == "Dangerous")
+  }
+
+  @Test func labelLikelyTPK() {
+    // lower boundary (-7) and a value well below
+    #expect(DifficultyBudget.Rating(budget: 14, cost: 21, remaining: -7).label == "Likely TPK")
+    #expect(DifficultyBudget.Rating(budget: 14, cost: 24, remaining: -10).label == "Likely TPK")
   }
 
   // MARK: Adjustment Suggestions
