@@ -66,6 +66,20 @@ nonisolated public enum DifficultyBudget {
 
   /// A snapshot of the encounter's difficulty budget analysis.
   nonisolated public struct Rating: Sendable, Equatable, Hashable {
+
+    /// Categorical difficulty level derived from ``remaining``.
+    public enum Category: String, Sendable {
+      case tooEasy = "Too Easy"
+      case wellMatched = "Well Matched"
+      case onBudget = "On Budget"
+      case challenging = "Challenging"
+      case dangerous = "Dangerous"
+      case likelyTPK = "Likely TPK"
+
+      /// The human-readable name for this category.
+      public var displayName: String { rawValue }
+    }
+
     /// Total Battle Points available (base budget + adjustment).
     public let budget: Int
     /// Total Battle Points spent on the adversary roster.
@@ -78,6 +92,31 @@ nonisolated public enum DifficultyBudget {
       self.cost = cost
       self.remaining = remaining
     }
+
+    /// The difficulty category for this rating, derived from `remaining` (budget − cost).
+    ///
+    /// | `remaining` | Category       |
+    /// |-------------|----------------|
+    /// | ≥ 4         | `.tooEasy`     |
+    /// | 1...3       | `.wellMatched` |
+    /// | 0           | `.onBudget`    |
+    /// | −1...−3     | `.challenging` |
+    /// | −4...−6     | `.dangerous`   |
+    /// | ≤ −7        | `.likelyTPK`   |
+    public var category: Category {
+      switch remaining {
+      case 4...: return .tooEasy
+      case 1...3: return .wellMatched
+      case 0: return .onBudget
+      case -3...(-1): return .challenging
+      case -6...(-4): return .dangerous
+      default: return .likelyTPK
+      }
+    }
+
+    /// Human-readable difficulty label for this rating.
+    /// Equivalent to `category.displayName`.
+    public var displayName: String { category.displayName }
   }
 
   /// Compute the difficulty rating for an adversary roster against a player count.
@@ -86,12 +125,19 @@ nonisolated public enum DifficultyBudget {
   ///   - adversaryTypes: The types of all adversaries in the encounter.
   ///   - playerCount: Number of player characters.
   ///   - budgetAdjustment: Manual adjustment to the base budget (from ``Adjustment`` point values).
-  /// - Returns: A ``Rating`` with budget, cost, and remaining points.
+  /// - Returns: A ``Rating``, or `nil` if `playerCount` is 0 or negative.
+  ///   Callers should handle `nil` to indicate that no meaningful difficulty
+  ///   can be computed without a party.
+  ///
+  /// - Note: Changing this return type from `Rating` to `Rating?` is a
+  ///   source-breaking change. A semver major version bump is required on
+  ///   the next release.
   public static func rating(
     adversaryTypes: [AdversaryType],
     playerCount: Int,
     budgetAdjustment: Int = 0
-  ) -> Rating {
+  ) -> Rating? {
+    guard playerCount > 0 else { return nil }
     let budget = baseBudget(playerCount: playerCount) + budgetAdjustment
     let cost = totalCost(for: adversaryTypes)
     return Rating(budget: budget, cost: cost, remaining: budget - cost)
